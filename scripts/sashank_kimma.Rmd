@@ -1,0 +1,132 @@
+---
+title: "mtb_in_LTBI_large"
+author: "Sashank Batchu"
+date: "2/8/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(limma)
+library(tidyverse)
+library(BIGverse)
+library(DiagrammeR)
+library(kimma)
+library(edgeR)
+library(patchwork)
+library(devtools)
+
+#load data 
+load("~/Documents/GitHub/MUPPITS1_Ext/Kimma/RSTR_RNAseq_data_combined_uniqueFULLID_weights.RData")
+
+#subsetted datasets
+media_tb_in_LTBI <- meta.combined %>% 
+  filter(condition == "MEDIA")
+LTBI_RSTR_in_media <- meta.combined %>% 
+  filter(Sample_Group == "LTBI")
+
+#subset voom for media vs tb
+dat_media <- dat.combined.voom
+
+dat_media$genes <- d
+
+dat_media$targets <- dat.combined.voom$targets %>% 
+  filter(condition == "MEDIA")
+
+dat_media$E <- as.data.frame(dat_media$E) %>% 
+  rownames_to_column("geneName") %>% 
+  select(geneName, all_of(dat_media$targets$libID)) %>% 
+  column_to_rownames("geneName")
+
+media_vector <- dat.combined.voom$targets$libID %in% dat_media$targets$libID
+dat_media$weights <- dat_media$weights[, media_vector]
+
+#subset voom for LTBI vs RSTR
+dat_LTBI <- dat.combined.voom
+
+dat_LTBI$targets <- dat_LTBI$targets %>% 
+  filter(Sample_Group == "LTBI")
+
+dat_LTBI$E <- as.data.frame(dat_LTBI$E) %>% 
+  rownames_to_column("geneName") %>% 
+  select(geneName, all_of(dat_LTBI$targets$libID)) %>% 
+  column_to_rownames("geneName")
+
+LTBI_vector <- dat.combined.voom$targets$libID %in% dat_LTBI$targets$libID
+
+dat_LTBI$weights <- dat_LTBI$weights[,LTBI_vector]
+
+```
+
+```{r LTBI}
+#### LTBI - No weights ####
+#### Limma
+mm_LTBI_limma <- model.matrix(~ condition, data=dat_LTBI$targets)
+
+dat_LTBI$weights <- NULL
+
+fit <- lmFit(object=dat_LTBI, design=mm_LTBI_limma)
+efit <- eBayes(fit)
+results_limma_LTBI <- kimma::extract_lmFit(design=mm_limma, fit=efit)
+
+save(efit, results_limma_LTBI, file= "LTBI_limma.RData")
+
+#### Kimma 
+fit <- kmFit(dat = dat_LTBI, model = "~ condition" , run.lm = TRUE, patientID = "FULLIDNO")
+results_kimma_LTBI <- fit$lm
+summarise_kmFit(results_kimma_LTBI)
+save(fit, results_kimma_LTBI, file= "LTBI_kimma.RData")
+
+#### DeSeq2
+
+#### With Weights####
+#### Limma
+#Add weights 
+dat_LTBI$weights <- dat.combined.voom$weights[, LTBI_vector]
+
+mm_LTBI_limma <- model.matrix(~ condition, data=dat_LTBI$targets)
+
+fit <- lmFit(object= dat_LTBI, design= mm_LTBI_limma)
+efit <- eBayes(fit)
+results_limma_LTBI_weights <- kimma::extract_lmFit(design=mm_limma, fit=efit)
+
+save(efit, results_limma_LTBI_weights, file= "LTBI_limma_weights.RData")
+
+#### Kimma 
+dat_LTBI$weights <- dat.combined.voom$weights[, LTBI_vector]
+
+fit <- kmFit(dat = dat_LTBI, model = "~ condition" , run.lm = TRUE, patientID = "FULLIDNO")
+results_kimma_LTBI_weights <- fit$lm
+summarise_kmFit(results_kimma_LTBI_weights)
+
+save(fit, results_kimma_LTBI_weights, file= "LTBI_kimma_weights.RData")
+```
+
+
+```{r sample}
+
+
+logical.vector <- dat.combined.voom$targets$libID %in% dat.subset$targets$libID
+logical.vector
+
+dat.subset$weights <- dat.subset$weights[,logical.vector]
+
+dim(dat.subset$E)
+dim(dat.subset$targets)
+dim(dat.subset$weights)
+
+#limma
+#Create model "design"
+mm_limma <- model.matrix(~ condition, data=dat.subset$targets)
+mm_limma
+
+#Remove weights if not using
+dat.subset$weights <- NULL
+
+fit <- lmFit(object=dat.subset, design=mm_limma)
+efit <- eBayes(fit)
+results <- kimma::extract_lmFit(design=mm_limma, fit=efit)
+
+#topTable(fit, coef=ncol(design))
+
+```
