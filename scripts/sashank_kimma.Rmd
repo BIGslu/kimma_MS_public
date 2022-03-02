@@ -104,52 +104,23 @@ summarise_kmFit(results_kimma_LTBI_vs_RSTR_weights)
 save(fit, results_kimma_LTBI_vs_RSTR_weights, file= "Sample_Group_kimma_weights.RData")
 
 #### Kinship (No weights) ####
-
-#### Limma
-fit <- lmFit(object = dat_LTBI_vs_RSTR, 
-             design = mm_LTBI_vs_RSTR_limma, 
-             weights = NULL, 
-             kin = kin.matrix,
-             run.lmekin = TRUE)
-efit <- eBayes(fit)
-results_limma_LTBI_vs_RSTR_kinship <- kimma::extract_lmFit(design = mm_LTBI_vs_RSTR_limma, fit=efit)
-summarise_lmFit(results_limma_LTBI_vs_RSTR_kinship)
-save(efit, results_limma_LTBI_vs_RSTR_kinship, file = "Sample_Group_limma_kinship")
-
-#### Kimma
 fit <- kmFit(dat = dat_LTBI_vs_RSTR, 
-             model = "~ Sample_Group", 
+             model = "~Sample_Group + (1|FULLIDNO)", 
              patientID = "FULLIDNO", 
              kin = kin.matrix, 
-             run.lmekin = TRUE, 
-             use.weights = FALSE)
-results_kimma_LTBI_vs_RSTR_kinship <- fit$lm
-save(fit, results_kimma_LTBI_vs_RSTR_kinship, file = "Sample_Group_kimma_kinship")
+             run.lmekin = TRUE)
+results_kimma_LTBI_vs_RSTR_kinship <- fit$lmekin
+save(fit, results_kimma_LTBI_vs_RSTR_kinship, file = "Sample_Group_kimma_kinship.RData")
 
 #### Kinship (Weights) ####
-
-#### Limma 
-
-fit <- lmFit(
-  object = dat_LTBI_vs_RSTR, 
-  design = mm_LTBI_vs_RSTR_limma, 
-  weights = dat_LTBI_vs_RSTR$weights, 
-  kin = kin.matrix, 
-  run.lmekin = TRUE)
-efit <- eBayes(fit)
-results_limma_LTBI_vs_RSTR_kinship_weights <- kimma::extract_lmFit(design = mm_LTBI_vs_RSTR_limma, fit = efit)
-save(efit, results_limma_LTBI_vs_RSTR_kinship_weights, file = "Sample_Group_limma_kinship_weights")
-
-#### Kimma 
 fit <- kmFit(dat = dat_LTBI_vs_RSTR,
-             model = "~ Sample_Group",
-             run.lm = TRUE, 
+             model = "~ Sample_Group + (1 | FULLIDNO)",
              patientID = "FULLIDNO",
              kin = kin.matrix, 
-             run.lmekin = TRUE
+             run.lmekin = TRUE, 
              use.weights = TRUE)
-results_kimma_LTBI_vs_RSTR_kinship_weights <- fit$lm
-save(fit, results_kimma_LTBI_vs_RSTR_kinship_weights, file = "Sample_Group_kimma_kinship_weights")
+results_kimma_LTBI_vs_RSTR_kinship_weights <- fit$lmekin
+save(fit, results_kimma_LTBI_vs_RSTR_kinship_weights, file = "Sample_Group_kimma_kinship_weights.RData")
 
 ```
 
