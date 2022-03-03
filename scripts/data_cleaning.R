@@ -88,7 +88,7 @@ datD.dedup$weights <- as.data.frame(datD.dedup$weights) %>%
 dat.dedup.rename <- dat.dedup
 
 dat.dedup.rename$samples <- dat.dedup.rename$samples %>% 
-  select(group, lib.size, norm.factors, libID, FULLIDNO, condition) %>% 
+  select(group, lib.size, norm.factors, libID, FULLIDNO, condition, Sample_Group) %>% 
   rename(ptID=FULLIDNO, libID2=libID) %>% 
   mutate(libID = paste(condition, ptID, sep="_"))
 rownames(dat.dedup.rename$samples) <- dat.dedup.rename$samples$libID
@@ -100,7 +100,7 @@ colnames(dat.dedup.rename$counts) <- dat.dedup.rename$samples$libID
 datV.dedup.rename <- datV.dedup
 
 datV.dedup.rename$targets <- datV.dedup.rename$targets %>% 
-  select(group, lib.size, norm.factors, libID, FULLIDNO, condition) %>% 
+  select(group, lib.size, norm.factors, libID, FULLIDNO, condition, Sample_Group) %>% 
   rename(ptID=FULLIDNO, libID2=libID) %>% 
   mutate(libID = paste(condition, ptID, sep="_"))
 rownames(datV.dedup.rename$targets) <- datV.dedup.rename$targets$libID
@@ -115,7 +115,7 @@ colnames(datV.dedup.rename$weights) <- datV.dedup.rename$targets$libID
 datD.dedup.rename <- datD.dedup
 
 datD.dedup.rename$targets <- datD.dedup.rename$targets %>% 
-  select(group, lib.size, norm.factors, libID, FULLIDNO, condition) %>% 
+  select(group, lib.size, norm.factors, libID, FULLIDNO, condition, Sample_Group) %>% 
   rename(ptID=FULLIDNO, libID2=libID) %>% 
   mutate(libID = paste(condition, ptID, sep="_"))
 rownames(datD.dedup.rename$targets) <- datD.dedup.rename$targets$libID
