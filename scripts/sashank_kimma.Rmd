@@ -10,6 +10,9 @@ knitr::opts_chunk$set(echo = TRUE)
 devtools::install_github("BIGslu/kimma")
 BiocManager::install("edgeR")
 
+install.packages("gtsummary")
+library(gtsummary)
+library(dplyr)
 library(limma)
 library(tidyverse)
 library(BIGverse)
@@ -19,6 +22,7 @@ library(edgeR)
 library(patchwork)
 library(devtools)
 library(edgeR)
+library(BIGpicture)
 
 #load data 
 load("~/Documents/GitHub/kimma_MS_public/data/RSTR_RNAseq_data_combined_uniqueFULLID_weights.RData") #full data 
@@ -59,6 +63,7 @@ dat_media_vs_tb$weights <- dat_media_vs_tb$weights[, media_vs_tb_vector]
 ``` {r LTBI vs RSTR sample_group (limma and kimma)}
 #### No weights ####
 #### Limma
+dat_LTBI_vs_RSTR$weights = NULL
 mm_LTBI_vs_RSTR_limma <- model.matrix(~ Sample_Group, data= dat_LTBI_vs_RSTR$targets)
 
 fit <- lmFit(object = dat_LTBI_vs_RSTR,
@@ -77,7 +82,8 @@ fit <- kmFit(dat = dat_LTBI_vs_RSTR,
              use.weights = FALSE)
 results_kimma_LTBI_vs_RSTR <- fit$lm
 summarise_kmFit(results_kimma_LTBI_vs_RSTR)
-save(fit, results_kimma_LTBI_vs_RSTR, file= "Sample_Group_kimma.RData")
+save(fit, results_kimma_LTBI_vs_RSTR, file = "Sample_Group_kimma.RData")
+
 
 #### With Weights####
 #### Limma
@@ -105,6 +111,8 @@ summarise_kmFit(results_kimma_LTBI_vs_RSTR_weights)
 save(fit, results_kimma_LTBI_vs_RSTR_weights, file= "Sample_Group_kimma_weights.RData")
 
 #### Kinship (No weights) ####
+dat_LTBI_vs_RSTR$weights = NULL
+
 fit <- kmFit(dat = dat_LTBI_vs_RSTR, 
              model = "~Sample_Group + (1|ptID)", 
              patientID = "ptID", 
@@ -123,9 +131,95 @@ fit <- kmFit(dat = dat_LTBI_vs_RSTR,
 results_kimma_LTBI_vs_RSTR_kinship_weights <- fit$lmekin
 save(fit, results_kimma_LTBI_vs_RSTR_kinship_weights, file = "Sample_Group_kimma_kinship_weights.RData")
 
+#### Bring data results back into environment for KIMMA
+test <- attach("~/Documents/GitHub/kimma_MS_public/results/model_fit/Sample_Group_kimma.RData") #kimma no weights/kinship
+results_kimma_LTBI_vs_RSTR <- test$results_kimma_LTBI_vs_RSTR
 
+test <- attach("~/Documents/GitHub/kimma_MS_public/results/model_fit/Sample_Group_kimma_weights.RData") # kimma with weights no kinship
+results_kimma_LTBI_vs_RSTR_weights <- test$results_kimma_LTBI_vs_RSTR_weights
 
+test <- attach("~/Documents/GitHub/kimma_MS_public/results/model_fit/Sample_Group_kimma_kinship.RData") #kimma kinship no weights
+results_kimma_LTBI_vs_RSTR_kinship <- test$results_kimma_LTBI_vs_RSTR_kinship
+
+test <- attach("~/Documents/GitHub/kimma_MS_public/results/model_fit/Sample_Group_kimma_kinship_weights.RData")
+results_kimma_LTBI_vs_RSTR_kinship_weights <- test$results_kimma_LTBI_vs_RSTR_kinship_weights
 ```
+
+```{r DEG - LTBI vs RSTR}
+#### LIMMA ####
+Sample_Group_limma <- attach("~/Documents/GitHub/kimma_MS_public/results/model_fit/Sample_Group_limma.RData")
+media.efit.noW <- Sample_Group_limma$efit
+media.results.limma.noW <- Sample_Group_limma$results_limma_LTBI_vs_RSTR
+
+Sample_Group_limma_weights <- attach("~/Documents/GitHub/kimma_MS_public/results/model_fit/Sample_Group_limma_weights.RData")
+media.efit.W <- Sample_Group_limma_weights$efit
+media.results.limma.W <- Sample_Group_limma_weights$results_limma_LTBI_vs_RSTR_weights
+
+## Venn 
+venn.ls <- list()
+venn.ls[["noW"]] <- media.results.limma.noW %>% 
+  filter(variable == "Sample_GroupRSTR" & adj.P.Val < 0.2) %>% 
+  distinct(symbol) %>% unlist()
+venn.ls[["W"]] <- media.results.limma.W %>% 
+  filter(variable == "Sample_GroupRSTR" & adj.P.Val < 0.2) %>% 
+  distinct(symbol) %>% unlist()
+
+#### KIMMA ####
+Sample_Group_kimma <- attach("~/Documents/GitHub/kimma_MS_public/results/model_fit/Sample_Group_kimma.RData")
+media.efit.k.noW <- Sample_Group_kimma$fit
+media.results.kimma.noW <- Sample_Group_kimma$results_kimma_LTBI_vs_RSTR
+
+Sample_Group_kimma_weights <- attach("~/Documents/GitHub/kimma_MS_public/results/model_fit/Sample_Group_kimma_weights.RData")
+media.efit.k.W <- Sample_Group_kimma_weights$fit
+media.results.kimma.W <- Sample_Group_kimma_weights$results_kimma_LTBI_vs_RSTR_weights
+
+Sample_Group_kimma_kinship <- attach("~/Documents/GitHub/kimma_MS_public/results/model_fit/Sample_Group_kimma_kinship.RData")
+results_kimma_LTBI_vs_RSTR_kinship <- Sample_Group_kimma_kinship$results_kimma_LTBI_vs_RSTR_kinship
+
+Sample_Group_kimma_kinship_weights <- attach("~/Documents/GitHub/kimma_MS_public/results/model_fit/Sample_Group_kimma_kinship_weights.RData")
+
+results_kimma_LTBI_vs_RSTR_kinship_weights <- Sample_Group_kimma_kinship_weights$results_kimma_LTBI_vs_RSTR_kinship_weights
+
+venn.ls2 <- list()
+venn.ls2[["noW"]] <- media.results.kimma.noW %>% 
+  filter(variable == "Sample_GroupRSTR" & FDR < 0.2) %>% 
+  distinct(gene) %>% unlist()
+venn.ls2[["W"]] <- media.results.kimma.W %>% 
+  filter(variable == "Sample_GroupRSTR" & FDR < 0.2) %>% 
+  distinct(gene) %>% unlist()
+venn.ls2[["Kin"]] <- results_kimma_LTBI_vs_RSTR_kinship %>% 
+  filter(variable == "Sample_GroupRSTR" & FDR < 0.2) %>% 
+  distinct(gene) %>% unlist()
+venn.ls2[["KinW"]] <- results_kimma_LTBI_vs_RSTR_kinship_weights %>% 
+  filter(variable == "Sample_GroupRSTR" & FDR < 0.2) %>% 
+  distinct(gene) %>% unlist()
+
+#table to summarize results
+sig_genes_table <- as.data.frame(c("TSHZ2", "3.282051e-02", "kimma_W_noKin, kimma_Kin_noW, kimma_Kin_W"), ncol = 3, byrow = TRUE)
+rownames(sig_genes_table) <- c("Symbol", "FDR", "Model")
+colnames(sig_genes_table) <- "Sig_Gene"
+  
+all_models_df <- results_limma_LTBI_vs_RSTR %>%
+  filter(variable == "Sample_GroupRSTR") %>% 
+  select(symbol, P.Value, adj.P.Val) %>% 
+  rename("Limma_noW_P.Value" = "P.Value", "Limma_noW_FDR" = "adj.P.Val") %>% 
+  full_join(filter(results_limma_LTBI_vs_RSTR_weights, variable == "Sample_GroupRSTR"), by = "symbol") %>% 
+  select(symbol, Limma_noW_P.Value, Limma_noW_FDR, P.Value, adj.P.Val) %>% 
+  rename("Limma_W_P.Value" = "P.Value", "Limma_W_FDR" = "adj.P.Val") %>% 
+  full_join(filter(results_kimma_LTBI_vs_RSTR, variable == "Sample_GroupRSTR"), by = c("symbol" = "gene")) %>% 
+  select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, pval, FDR) %>% 
+  rename("Kimma_noW_noKin_P.Value" = "pval", "Kimma_noW_noKin_FDR" = "FDR") %>%  
+  full_join(filter(results_kimma_LTBI_vs_RSTR_weights, variable == "Sample_GroupRSTR"), by = c("symbol" = "gene")) %>%  
+  select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, Kimma_noW_noKin_P.Value, Kimma_noW_noKin_FDR, pval, FDR) %>% 
+  rename("Kimma_W_noKin_P.Value" = "pval", "Kimma_W_noKin_FDR" = "FDR") %>% 
+  full_join(filter(results_kimma_LTBI_vs_RSTR_kinship, variable == "Sample_GroupRSTR"), by = c("symbol" = "gene")) %>% 
+  select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, Kimma_noW_noKin_P.Value, Kimma_noW_noKin_FDR, Kimma_W_noKin_P.Value, Kimma_W_noKin_FDR, pval, FDR) %>%  
+  rename("Kimma_noW_Kin_P.Value" = "pval", "Kimma_noW_Kin_FDR" = "FDR") %>% 
+  full_join(filter(results_kimma_LTBI_vs_RSTR_kinship_weights, variable == "Sample_GroupRSTR"), by = c("symbol" = "gene")) %>% 
+  select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, Kimma_noW_noKin_P.Value, Kimma_noW_noKin_FDR, Kimma_W_noKin_P.Value, Kimma_W_noKin_FDR, Kimma_noW_Kin_P.Value, Kimma_noW_Kin_FDR, pval, FDR) %>% 
+    rename("Kimma_W_Kin_P.Value" = "pval", "Kimma_W_Kin_FDR" = "FDR") 
+```
+
 
 ```{r media vs tb condition (limma and kimma)}
 #### No weights ####
