@@ -91,3 +91,4 @@ k.fit <- kmFit(dat.combined.voom, patientID = "FULLIDNO",
                kin=kinship.mat,
                use.weights = TRUE/FALSE,
                model = "~ condition + (1|FULLIDNO)", run.lmekin = TRUE)
+
