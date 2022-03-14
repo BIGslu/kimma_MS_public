@@ -101,16 +101,17 @@ for(i in 1:100){
   
   # Introduce 50 genes each with fold change 0.1, 0.25, 0.5, 1, 2
   ## raw counts
+  
   dat.sim.01 <- dat.sub$counts[c(1:50), ]*1.1
-  dat.sim.025 <- dat.sub$counts[c(51:100), ]*1.25
-  dat.sim.05 <- dat.sub$counts[c(101:150), ]*1.5
-  dat.sim.1 <- dat.sub$counts[c(151:200), ]*2
-  dat.sim.2 <- dat.sub$counts[c(201:250), ]*3
+  dat.sim.05 <- dat.sub$counts[c(51:100), ]*1.5
+  dat.sim.1 <- dat.sub$counts[c(101:150), ]*2
+  dat.sim.005 <- dat.sub$counts[c(151:200), ]*1.05
+  dat.sim.001 <- dat.sub$counts[c(201:250), ]*1.01
   dat.sim.base <- dat.sub$counts[c(251:1000), ]
   
   # Combine and rename with new libID
-  dat.sim <- rbind(dat.sim.01, dat.sim.025, dat.sim.05, 
-                   dat.sim.1, dat.sim.2, dat.sim.base)
+  dat.sim <- rbind(dat.sim.01, dat.sim.05, dat.sim.1,
+                    dat.sim.005, dat.sim.001, dat.sim.base)
   colnames(dat.sim) <- paste0("lib", (N+1):(N*2))
   
   # Introduce simulated error by multiplying by a random number between 0.95 and 1.05
@@ -123,15 +124,15 @@ for(i in 1:100){
   
   ## Voom data
   dat.sim.01b <- dat.sub$E[c(1:50), ]*1.1
-  dat.sim.025b <- dat.sub$E[c(51:100), ]*1.25
-  dat.sim.05b <- dat.sub$E[c(101:150), ]*1.5
-  dat.sim.1b <- dat.sub$E[c(151:200), ]*2
-  dat.sim.2b <- dat.sub$E[c(201:250), ]*3
+  dat.sim.05b <- dat.sub$E[c(51:100), ]*1.5
+  dat.sim.1b <- dat.sub$E[c(101:150), ]*2
+  dat.sim.005b <- dat.sub$E[c(151:200), ]*1.05
+  dat.sim.001b <- dat.sub$E[c(201:250), ]*1.01
   dat.sim.baseb <- dat.sub$E[c(251:1000), ]
   
   # Combine and rename with new libID
-  dat.simb <- rbind(dat.sim.01b, dat.sim.025b, dat.sim.05b, 
-                   dat.sim.1b, dat.sim.2b, dat.sim.baseb)
+  dat.simb <- rbind(dat.sim.01b, dat.sim.05b, dat.sim.1b,
+                    dat.sim.005b, dat.sim.001b, dat.sim.baseb)
   colnames(dat.simb) <- paste0("lib", (N+1):(N*2))
   
   # Introduce simulated error by multiplying by a random number between 0.95 and 1.05
