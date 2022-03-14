@@ -200,24 +200,24 @@ rownames(sig_genes_table) <- c("Symbol", "FDR", "Model")
 colnames(sig_genes_table) <- "Sig_Gene"
   
 all_models_df <- results_limma_LTBI_vs_RSTR %>%
-  filter(variable == "Sample_GroupRSTR") %>% 
-  select(symbol, P.Value, adj.P.Val) %>% 
-  rename("Limma_noW_P.Value" = "P.Value", "Limma_noW_FDR" = "adj.P.Val") %>% 
+      filter(variable == "Sample_GroupRSTR") %>% 
+      select(symbol, P.Value, adj.P.Val) %>% 
+      rename("Limma_noW_P.Value" = "P.Value", "Limma_noW_FDR" = "adj.P.Val") %>% 
   full_join(filter(results_limma_LTBI_vs_RSTR_weights, variable == "Sample_GroupRSTR"), by = "symbol") %>% 
-  select(symbol, Limma_noW_P.Value, Limma_noW_FDR, P.Value, adj.P.Val) %>% 
-  rename("Limma_W_P.Value" = "P.Value", "Limma_W_FDR" = "adj.P.Val") %>% 
+      select(symbol, Limma_noW_P.Value, Limma_noW_FDR, P.Value, adj.P.Val) %>% 
+      rename("Limma_W_P.Value" = "P.Value", "Limma_W_FDR" = "adj.P.Val") %>% 
   full_join(filter(results_kimma_LTBI_vs_RSTR, variable == "Sample_GroupRSTR"), by = c("symbol" = "gene")) %>% 
-  select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, pval, FDR) %>% 
-  rename("Kimma_noW_noKin_P.Value" = "pval", "Kimma_noW_noKin_FDR" = "FDR") %>%  
+      select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, pval, FDR) %>% 
+      rename("Kimma_noW_noKin_P.Value" = "pval", "Kimma_noW_noKin_FDR" = "FDR") %>%  
   full_join(filter(results_kimma_LTBI_vs_RSTR_weights, variable == "Sample_GroupRSTR"), by = c("symbol" = "gene")) %>%  
-  select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, Kimma_noW_noKin_P.Value, Kimma_noW_noKin_FDR, pval, FDR) %>% 
-  rename("Kimma_W_noKin_P.Value" = "pval", "Kimma_W_noKin_FDR" = "FDR") %>% 
+      select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, Kimma_noW_noKin_P.Value, Kimma_noW_noKin_FDR, pval, FDR) %>% 
+      rename("Kimma_W_noKin_P.Value" = "pval", "Kimma_W_noKin_FDR" = "FDR") %>% 
   full_join(filter(results_kimma_LTBI_vs_RSTR_kinship, variable == "Sample_GroupRSTR"), by = c("symbol" = "gene")) %>% 
-  select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, Kimma_noW_noKin_P.Value, Kimma_noW_noKin_FDR, Kimma_W_noKin_P.Value, Kimma_W_noKin_FDR, pval, FDR) %>%  
-  rename("Kimma_noW_Kin_P.Value" = "pval", "Kimma_noW_Kin_FDR" = "FDR") %>% 
+      select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, Kimma_noW_noKin_P.Value, Kimma_noW_noKin_FDR, Kimma_W_noKin_P.Value, Kimma_W_noKin_FDR, pval, FDR) %>%  
+      rename("Kimma_noW_Kin_P.Value" = "pval", "Kimma_noW_Kin_FDR" = "FDR") %>% 
   full_join(filter(results_kimma_LTBI_vs_RSTR_kinship_weights, variable == "Sample_GroupRSTR"), by = c("symbol" = "gene")) %>% 
-  select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, Kimma_noW_noKin_P.Value, Kimma_noW_noKin_FDR, Kimma_W_noKin_P.Value, Kimma_W_noKin_FDR, Kimma_noW_Kin_P.Value, Kimma_noW_Kin_FDR, pval, FDR) %>% 
-    rename("Kimma_W_Kin_P.Value" = "pval", "Kimma_W_Kin_FDR" = "FDR") 
+      select(symbol, Limma_noW_P.Value, Limma_noW_FDR, Limma_W_P.Value, Limma_W_FDR, Kimma_noW_noKin_P.Value, Kimma_noW_noKin_FDR, Kimma_W_noKin_P.Value, Kimma_W_noKin_FDR, Kimma_noW_Kin_P.Value, Kimma_noW_Kin_FDR, pval, FDR) %>% 
+      rename("Kimma_W_Kin_P.Value" = "pval", "Kimma_W_Kin_FDR" = "FDR") 
 ```
 
 
