@@ -548,4 +548,4 @@ ss_result <- bind_rows(result[[1]]) %>%
   select(-trash) 
 
 save(ss_result, time_result, 
-     file="results/model_fit/simulated_models_all.RData")
+     file="results/simulated_fit.RData")
