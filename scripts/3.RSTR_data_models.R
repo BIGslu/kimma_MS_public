@@ -28,13 +28,15 @@ datV.media$weights <- as.data.frame(datV.media$weights) %>%
   as.matrix()
 
 #### kimma ####
-#### Unpaired ####
 # Paired = N, kinship = N, weights = N
 kimma_nnn_rstr <- kmFit(dat = datV.media,
                         model = "~ Sample_Group", run.lm = TRUE, 
                         use.weights = FALSE)
 
 kimma_nnn_rstr$lm <- kimma_nnn_rstr$lm %>% 
+  mutate(software = "kimma", paired = "unpaired",
+         kinship = "no kinship", weights = "no weights")
+kimma_nnn_rstr$lm.fit <- kimma_nnn_rstr$lm.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "no kinship", weights = "no weights")
 
@@ -45,6 +47,9 @@ kimma_nny_rstr <- kmFit(dat = datV.media,
 kimma_nny_rstr$lm <- kimma_nnn_rstr$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "no kinship", weights = "weights")
+kimma_nny_rstr$lm.fit <- kimma_nnn_rstr$lm.fit %>% 
+  mutate(software = "kimma", paired = "unpaired",
+         kinship = "no kinship", weights = "weights")
 
 # Paired = N, kinship = Y, weights = N
 kimma_nyn_rstr <- kmFit(dat = datV.media, kin=kin,
@@ -53,12 +58,18 @@ kimma_nyn_rstr <- kmFit(dat = datV.media, kin=kin,
 kimma_nyn_rstr$lmekin <- kimma_nyn_rstr$lmekin %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "no weights")
+kimma_nyn_rstr$lmekin.fit <- kimma_nyn_rstr$lmekin.fit %>% 
+  mutate(software = "kimma", paired = "unpaired",
+         kinship = "kinship", weights = "no weights")
 
 # Paired = N, kinship = Y, weights = Y
 kimma_nyy_rstr <- kmFit(dat = datV.media, kin=kin,
                         model = "~ Sample_Group + (1|ptID)", run.lmekin = TRUE, 
                         use.weights = TRUE, processors = 4)
 kimma_nyy_rstr$lmekin <- kimma_nyy_rstr$lmekin %>% 
+  mutate(software = "kimma", paired = "unpaired",
+         kinship = "kinship", weights = "weights")
+kimma_nyy_rstr$lmekin.fit <- kimma_nyy_rstr$lmekin.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "weights")
 
@@ -98,14 +109,42 @@ deseq2_nnn_rstr <- as.data.frame(results(fit)) %>%
          kinship = "no kinship", weights = "no weights")
 
 #### Save ####
-rstr.ls <- list()
+#Save indiv results for easier updating in future
+save(kimma_nnn_rstr,kimma_nny_rstr,kimma_nyn_rstr,kimma_nyy_rstr,
+     limma_nnn_rstr,limma_nny_rstr,deseq2_nnn_rstr,
+     file="results/model_fit/sample_group/Sample_Group_all.RData")
 
-for(d in c("kimma_nnn_rstr", "kimma_nny_rstr", 
-           "kimma_nyn_rstr", "kimma_nyy_rstr",
-           "limma_nnn_rstr", "limma_nny_rstr",
-           "deseq2_nnn_rstr")){
-  print(d)
-  rstr.ls[[d]] <- get(d)
-}
+#Combine and format 1 df
+resultK <- bind_rows(kimma_nnn_rstr$lm, kimma_nny_rstr$lm,
+                     kimma_nyn_rstr$lmekin, kimma_nyy_rstr$lmekin) %>% 
+  mutate(variable = recode(variable, "Sample_GroupRSTR"="Sample_Group")) %>% 
+  filter(variable == "Sample_Group") %>% 
+  mutate(subset = "all") %>% 
+  select(subset, software:weights,gene:FDR)
 
-save(rstr.ls, file="results/rstr_fit.RData")
+resultL <- bind_rows(limma_nnn_rstr,limma_nny_rstr) %>% 
+  mutate(variable = recode(variable, "Sample_GroupRSTR"="Sample_Group")) %>% 
+  filter(variable == "Sample_Group") %>% 
+  mutate(subset = "all") %>% 
+  #rename to match kimma results
+  dplyr::rename(gene=symbol, estimate=logFC,
+                pval=P.Value, FDR=adj.P.Val) %>% 
+  select(all_of(colnames(resultK)))
+
+resultS <- deseq2_nnn_rstr %>% 
+  mutate(subset = "all") %>% 
+  #rename to match kimma results
+  dplyr::rename(estimate=log2FoldChange) %>% 
+  select(all_of(colnames(resultK)))
+
+rstr_result <- bind_rows(resultK, resultL, resultS)
+rownames(rstr_result) <- NULL
+
+#Combine fit into 1 df
+rstr_metric <- bind_rows(kimma_nnn_rstr$lm.fit,kimma_nny_rstr$lm.fit,
+                         kimma_nyn_rstr$lmekin.fit,kimma_nyy_rstr$lmekin.fit) %>% 
+  mutate(subset = "all") %>% 
+  select(subset, software:weights,gene:adj_Rsq)
+
+#Save
+save(rstr_result, rstr_metric, file="results/rstr_fit.RData")
