@@ -64,7 +64,7 @@ kin.related <- kin[related,related]
 # Paired = N, kinship = N, weights = N
 kimma_nnn_rstr_unrelated <- kmFit(dat = datV.media.unrelated, 
                                   model = "~ Sample_Group", run.lm = TRUE, 
-                                  use.weights = FALSE)
+                                  use.weights = FALSE, metrics = TRUE)
 kimma_nnn_rstr_unrelated$lm <- kimma_nnn_rstr_unrelated$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "no kinship", weights = "no weights",
@@ -77,7 +77,7 @@ kimma_nnn_rstr_unrelated$lm.fit <- kimma_nnn_rstr_unrelated$lm.fit %>%
 # Paired = N, kinship = N, weights = Y
 kimma_nny_rstr_unrelated <- kmFit(dat = datV.media.unrelated, 
                                   model = "~ Sample_Group", run.lm = TRUE, 
-                                  use.weights = TRUE)
+                                  use.weights = TRUE, metrics = TRUE)
 kimma_nny_rstr_unrelated$lm <- kimma_nny_rstr_unrelated$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "no kinship", weights = "weights",
@@ -89,26 +89,26 @@ kimma_nny_rstr_unrelated$lm.fit <- kimma_nny_rstr_unrelated$lm.fit %>%
 
 # Paired = N, kinship = Y, weights = N
 kimma_nyn_rstr_unrelated <- kmFit(dat = datV.media.unrelated, kin=kin.unrelated,
-                                       model = "~ Sample_Group + (1|ptID)", run.lmekin = TRUE, 
-                                       use.weights = FALSE)
-kimma_nyn_rstr_unrelated$lmekin <- kimma_nyn_rstr_unrelated$lmekin %>% 
+                                       model = "~ Sample_Group + (1|ptID)", run.lmerel = TRUE, 
+                                       use.weights = FALSE, metrics = TRUE)
+kimma_nyn_rstr_unrelated$lmerel <- kimma_nyn_rstr_unrelated$lmerel %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "no weights",
          subset="unrelated")
-kimma_nyn_rstr_unrelated$lmekin.fit <- kimma_nyn_rstr_unrelated$lmekin.fit %>% 
+kimma_nyn_rstr_unrelated$lmerel.fit <- kimma_nyn_rstr_unrelated$lmerel.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "no weights",
          subset="unrelated")
 
 # Paired = Y, kinship = Y, weights = Y
 kimma_nyy_rstr_unrelated <- kmFit(dat = datV.media.unrelated, kin=kin.unrelated,
-                                       model = "~ Sample_Group + (1|ptID)", run.lmekin = TRUE, 
-                                       use.weights = TRUE)
-kimma_nyy_rstr_unrelated$lmekin <- kimma_nyy_rstr_unrelated$lmekin %>% 
+                                       model = "~ Sample_Group + (1|ptID)", run.lmerel = TRUE, 
+                                       use.weights = TRUE, metrics = TRUE)
+kimma_nyy_rstr_unrelated$lmerel <- kimma_nyy_rstr_unrelated$lmerel %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "weights",
          subset="unrelated")
-kimma_nyy_rstr_unrelated$lmekin.fit <- kimma_nyy_rstr_unrelated$lmekin.fit %>% 
+kimma_nyy_rstr_unrelated$lmerel.fit <- kimma_nyy_rstr_unrelated$lmerel.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "weights",
          subset="unrelated")
@@ -117,7 +117,7 @@ kimma_nyy_rstr_unrelated$lmekin.fit <- kimma_nyy_rstr_unrelated$lmekin.fit %>%
 # Paired = N, kinship = N, weights = N
 kimma_nnn_rstr_related <- kmFit(dat = datV.media.related, 
                                   model = "~ Sample_Group", run.lm = TRUE, 
-                                  use.weights = FALSE)
+                                  use.weights = FALSE, metrics = TRUE)
 kimma_nnn_rstr_related$lm <- kimma_nnn_rstr_related$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "no kinship", weights = "no weights",
@@ -130,7 +130,7 @@ kimma_nnn_rstr_related$lm.fit <- kimma_nnn_rstr_related$lm.fit %>%
 # Paired = N, kinship = N, weights = Y
 kimma_nny_rstr_related <- kmFit(dat = datV.media.related, 
                                   model = "~ Sample_Group", run.lm = TRUE, 
-                                  use.weights = TRUE)
+                                  use.weights = TRUE, metrics = TRUE)
 kimma_nny_rstr_related$lm <- kimma_nny_rstr_related$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "no kinship", weights = "weights",
@@ -142,26 +142,26 @@ kimma_nny_rstr_related$lm.fit <- kimma_nny_rstr_related$lm.fit %>%
 
 # Paired = N, kinship = Y, weights = N
 kimma_nyn_rstr_related <- kmFit(dat = datV.media.related, kin=kin.related,
-                                     model = "~ Sample_Group + (1|ptID)", run.lmekin = TRUE, 
-                                     use.weights = FALSE)
-kimma_nyn_rstr_related$lmekin <- kimma_nyn_rstr_related$lmekin %>% 
+                                     model = "~ Sample_Group + (1|ptID)", run.lmerel = TRUE, 
+                                     use.weights = FALSE, metrics = TRUE)
+kimma_nyn_rstr_related$lmerel <- kimma_nyn_rstr_related$lmerel %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "no weights",
          subset="related")
-kimma_nyn_rstr_related$lmekin.fit <- kimma_nyn_rstr_related$lmekin.fit %>% 
+kimma_nyn_rstr_related$lmerel.fit <- kimma_nyn_rstr_related$lmerel.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "no weights",
          subset="related")
 
 # Paired = N, kinship = Y, weights = Y
 kimma_nyy_rstr_related <- kmFit(dat = datV.media.related, kin=kin.related,
-                                     model = "~ Sample_Group + (1|ptID)", run.lmekin = TRUE, 
-                                     use.weights = TRUE)
-kimma_nyy_rstr_related$lmekin <- kimma_nyy_rstr_related$lmekin %>% 
+                                     model = "~ Sample_Group + (1|ptID)", run.lmerel = TRUE, 
+                                     use.weights = TRUE, metrics = TRUE)
+kimma_nyy_rstr_related$lmerel <- kimma_nyy_rstr_related$lmerel %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "weights",
          subset="related")
-kimma_nyy_rstr_related$lmekin.fit <- kimma_nyy_rstr_related$lmekin.fit %>% 
+kimma_nyy_rstr_related$lmerel.fit <- kimma_nyy_rstr_related$lmerel.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "weights",
          subset="related")
@@ -177,12 +177,12 @@ save(kimma_nnn_rstr_unrelated,kimma_nny_rstr_unrelated,
 #Combine and format 1 df
 rstr_subset_result <- bind_rows(kimma_nnn_rstr_unrelated$lm,
                                 kimma_nny_rstr_unrelated$lm,
-                                kimma_nyn_rstr_unrelated$lmekin,
-                                kimma_nyy_rstr_unrelated$lmekin,
+                                kimma_nyn_rstr_unrelated$lmerel,
+                                kimma_nyy_rstr_unrelated$lmerel,
                                 kimma_nnn_rstr_related$lm,
                                 kimma_nny_rstr_related$lm,
-                                kimma_nyn_rstr_related$lmekin,
-                                kimma_nyy_rstr_related$lmekin) %>% 
+                                kimma_nyn_rstr_related$lmerel,
+                                kimma_nyy_rstr_related$lmerel) %>% 
   mutate(variable = recode(variable, "Sample_GroupRSTR"="Sample_Group")) %>% 
   filter(variable == "Sample_Group") %>% 
   select(subset, software:weights,gene:FDR)
@@ -192,12 +192,12 @@ rownames(rstr_subset_result) <- NULL
 #Combine fit into 1 df
 rstr_subset_metric <- bind_rows(kimma_nnn_rstr_unrelated$lm.fit,
                                 kimma_nny_rstr_unrelated$lm.fit,
-                                kimma_nyn_rstr_unrelated$lmekin.fit,
-                                kimma_nyy_rstr_unrelated$lmekin.fit,
+                                kimma_nyn_rstr_unrelated$lmerel.fit,
+                                kimma_nyy_rstr_unrelated$lmerel.fit,
                                 kimma_nnn_rstr_related$lm.fit,
                                 kimma_nny_rstr_related$lm.fit,
-                                kimma_nyn_rstr_related$lmekin.fit,
-                                kimma_nyy_rstr_related$lmekin.fit) %>% 
+                                kimma_nyn_rstr_related$lmerel.fit,
+                                kimma_nyy_rstr_related$lmerel.fit) %>% 
   select(subset, software:weights,gene:adj_Rsq)
 
 #Save

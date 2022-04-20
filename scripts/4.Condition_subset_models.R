@@ -64,7 +64,7 @@ kin.related <- kin[related,related]
 # Paired = Y, kinship = N, weights = N
 kimma_ynn_condition_unrelated <- kmFit(dat = datV.ltbi.unrelated, 
                                        model = "~ condition + (1|ptID)", run.lme = TRUE, 
-                                       use.weights = FALSE)
+                                       use.weights = FALSE, metrics = TRUE)
 kimma_ynn_condition_unrelated$lme <- kimma_ynn_condition_unrelated$lme %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "no kinship", weights = "no weights",
@@ -77,7 +77,7 @@ kimma_ynn_condition_unrelated$lme.fit <- kimma_ynn_condition_unrelated$lme.fit %
 # Paired = Y, kinship = N, weights = Y
 kimma_yny_condition_unrelated <- kmFit(dat = datV.ltbi.unrelated, 
                                        model = "~ condition + (1|ptID)", run.lme = TRUE, 
-                                       use.weights = TRUE)
+                                       use.weights = TRUE, metrics = TRUE)
 kimma_yny_condition_unrelated$lme <- kimma_yny_condition_unrelated$lme %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "no kinship", weights = "weights",
@@ -89,26 +89,26 @@ kimma_yny_condition_unrelated$lme.fit <- kimma_yny_condition_unrelated$lme.fit %
 
 # Paired = Y, kinship = Y, weights = N
 kimma_yyn_condition_unrelated <- kmFit(dat = datV.ltbi.unrelated, kin=kin.unrelated,
-                             model = "~ condition + (1|ptID)", run.lmekin = TRUE, 
-                             use.weights = FALSE)
-kimma_yyn_condition_unrelated$lmekin <- kimma_yyn_condition_unrelated$lmekin %>% 
+                             model = "~ condition + (1|ptID)", run.lmerel = TRUE, 
+                             use.weights = FALSE, metrics = TRUE)
+kimma_yyn_condition_unrelated$lmerel <- kimma_yyn_condition_unrelated$lmerel %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "kinship", weights = "no weights",
          subset = "unrelated")
-kimma_yyn_condition_unrelated$lmekin.fit <- kimma_yyn_condition_unrelated$lmekin.fit %>% 
+kimma_yyn_condition_unrelated$lmerel.fit <- kimma_yyn_condition_unrelated$lmerel.fit %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "kinship", weights = "no weights",
          subset = "unrelated")
 
 # Paired = Y, kinship = Y, weights = Y
 kimma_yyy_condition_unrelated <- kmFit(dat = datV.ltbi.unrelated, kin=kin.unrelated,
-                             model = "~ condition + (1|ptID)", run.lmekin = TRUE, 
-                             use.weights = TRUE)
-kimma_yyy_condition_unrelated$lmekin <- kimma_yyy_condition_unrelated$lmekin %>% 
+                             model = "~ condition + (1|ptID)", run.lmerel = TRUE, 
+                             use.weights = TRUE, metrics = TRUE)
+kimma_yyy_condition_unrelated$lmerel <- kimma_yyy_condition_unrelated$lmerel %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "kinship", weights = "weights",
          subset="unrelated")
-kimma_yyy_condition_unrelated$lmekin.fit <- kimma_yyy_condition_unrelated$lmekin.fit %>% 
+kimma_yyy_condition_unrelated$lmerel.fit <- kimma_yyy_condition_unrelated$lmerel.fit %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "kinship", weights = "weights",
          subset="unrelated")
@@ -117,7 +117,7 @@ kimma_yyy_condition_unrelated$lmekin.fit <- kimma_yyy_condition_unrelated$lmekin
 # Paired = Y, kinship = N, weights = N
 kimma_ynn_condition_related <- kmFit(dat = datV.ltbi.related, 
                                      model = "~ condition + (1|ptID)", run.lme = TRUE, 
-                                     use.weights = FALSE)
+                                     use.weights = FALSE, metrics = TRUE)
 kimma_ynn_condition_related$lme <- kimma_ynn_condition_related$lme %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "no kinship", weights = "no weights",
@@ -130,7 +130,7 @@ kimma_ynn_condition_related$lme.fit <- kimma_ynn_condition_related$lme.fit %>%
 # Paired = Y, kinship = N, weights = Y
 kimma_yny_condition_related <- kmFit(dat = datV.ltbi.related, 
                                      model = "~ condition + (1|ptID)", run.lme = TRUE, 
-                                     use.weights = TRUE)
+                                     use.weights = TRUE, metrics = TRUE)
 kimma_yny_condition_related$lme <- kimma_yny_condition_related$lme %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "no kinship", weights = "weights",
@@ -142,26 +142,26 @@ kimma_yny_condition_related$lme.fit <- kimma_yny_condition_related$lme.fit %>%
 
 # Paired = Y, kinship = Y, weights = N
 kimma_yyn_condition_related <- kmFit(dat = datV.ltbi.related, kin=kin.related,
-                                       model = "~ condition + (1|ptID)", run.lmekin = TRUE, 
-                                       use.weights = FALSE)
-kimma_yyn_condition_related$lmekin <- kimma_yyn_condition_related$lmekin %>% 
+                                       model = "~ condition + (1|ptID)", run.lmerel = TRUE, 
+                                       use.weights = FALSE, metrics = TRUE)
+kimma_yyn_condition_related$lmerel <- kimma_yyn_condition_related$lmerel %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "kinship", weights = "no weights",
          subset="related")
-kimma_yyn_condition_related$lmekin.fit <- kimma_yyn_condition_related$lmekin.fit %>% 
+kimma_yyn_condition_related$lmerel.fit <- kimma_yyn_condition_related$lmerel.fit %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "kinship", weights = "no weights",
          subset="related")
 
 # Paired = Y, kinship = Y, weights = Y
 kimma_yyy_condition_related <- kmFit(dat = datV.ltbi.related, kin=kin.related,
-                                       model = "~ condition + (1|ptID)", run.lmekin = TRUE, 
-                                       use.weights = TRUE)
-kimma_yyy_condition_related$lmekin <- kimma_yyy_condition_related$lmekin %>% 
+                                       model = "~ condition + (1|ptID)", run.lmerel = TRUE, 
+                                       use.weights = TRUE, metrics = TRUE)
+kimma_yyy_condition_related$lmerel <- kimma_yyy_condition_related$lmerel %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "kinship", weights = "weights",
          subset="related")
-kimma_yyy_condition_related$lmekin.fit <- kimma_yyy_condition_related$lmekin.fit %>% 
+kimma_yyy_condition_related$lmerel.fit <- kimma_yyy_condition_related$lmerel.fit %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "kinship", weights = "weights",
          subset="related")
@@ -177,12 +177,12 @@ save(kimma_ynn_condition_unrelated, kimma_yny_condition_unrelated,
 #Combine and format 1 df
 condition_subset_result <- bind_rows(kimma_ynn_condition_unrelated$lme,
                                      kimma_yny_condition_unrelated$lme,
-                                     kimma_yyn_condition_unrelated$lmekin,
-                                     kimma_yyy_condition_unrelated$lmekin,
+                                     kimma_yyn_condition_unrelated$lmerel,
+                                     kimma_yyy_condition_unrelated$lmerel,
                                      kimma_ynn_condition_related$lme,
                                      kimma_yny_condition_related$lme,
-                                     kimma_yyn_condition_related$lmekin,
-                                     kimma_yyy_condition_related$lmekin) %>% 
+                                     kimma_yyn_condition_related$lmerel,
+                                     kimma_yyy_condition_related$lmerel) %>% 
   mutate(variable = recode(variable, "conditionTB"="condition")) %>% 
   filter(variable == "condition") %>% 
   select(subset, software:weights,gene:FDR)
@@ -192,12 +192,12 @@ rownames(condition_subset_result) <- NULL
 #Combine fit into 1 df
 condition_subset_metric <- bind_rows(kimma_ynn_condition_unrelated$lme.fit,
                                     kimma_yny_condition_unrelated$lme.fit,
-                                    kimma_yyn_condition_unrelated$lmekin.fit,
-                                    kimma_yyy_condition_unrelated$lmekin.fit,
+                                    kimma_yyn_condition_unrelated$lmerel.fit,
+                                    kimma_yyy_condition_unrelated$lmerel.fit,
                                     kimma_ynn_condition_related$lme.fit,
                                     kimma_yny_condition_related$lme.fit,
-                                    kimma_yyn_condition_related$lmekin.fit,
-                                    kimma_yyy_condition_related$lmekin.fit) %>% 
+                                    kimma_yyn_condition_related$lmerel.fit,
+                                    kimma_yyy_condition_related$lmerel.fit) %>% 
   select(subset, software:weights,gene:adj_Rsq)
 
 #Save

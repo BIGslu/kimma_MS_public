@@ -31,7 +31,7 @@ datV.media$weights <- as.data.frame(datV.media$weights) %>%
 # Paired = N, kinship = N, weights = N
 kimma_nnn_rstr <- kmFit(dat = datV.media,
                         model = "~ Sample_Group", run.lm = TRUE, 
-                        use.weights = FALSE)
+                        use.weights = FALSE, metrics = TRUE)
 
 kimma_nnn_rstr$lm <- kimma_nnn_rstr$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
@@ -43,7 +43,7 @@ kimma_nnn_rstr$lm.fit <- kimma_nnn_rstr$lm.fit %>%
 # Paired = N, kinship = N, weights = Y
 kimma_nny_rstr <- kmFit(dat = datV.media,
                         model = "~ Sample_Group", run.lm = TRUE, 
-                        use.weights = TRUE)
+                        use.weights = TRUE, metrics = TRUE)
 kimma_nny_rstr$lm <- kimma_nnn_rstr$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "no kinship", weights = "weights")
@@ -53,23 +53,23 @@ kimma_nny_rstr$lm.fit <- kimma_nnn_rstr$lm.fit %>%
 
 # Paired = N, kinship = Y, weights = N
 kimma_nyn_rstr <- kmFit(dat = datV.media, kin=kin,
-                        model = "~ Sample_Group + (1|ptID)", run.lmekin = TRUE, 
-                        use.weights = FALSE, processors = 4)
-kimma_nyn_rstr$lmekin <- kimma_nyn_rstr$lmekin %>% 
+                        model = "~ Sample_Group + (1|ptID)", run.lmerel = TRUE, 
+                        use.weights = FALSE, processors = 4, metrics = TRUE)
+kimma_nyn_rstr$lmerel <- kimma_nyn_rstr$lmerel %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "no weights")
-kimma_nyn_rstr$lmekin.fit <- kimma_nyn_rstr$lmekin.fit %>% 
+kimma_nyn_rstr$lmerel.fit <- kimma_nyn_rstr$lmerel.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "no weights")
 
 # Paired = N, kinship = Y, weights = Y
 kimma_nyy_rstr <- kmFit(dat = datV.media, kin=kin,
-                        model = "~ Sample_Group + (1|ptID)", run.lmekin = TRUE, 
-                        use.weights = TRUE, processors = 4)
-kimma_nyy_rstr$lmekin <- kimma_nyy_rstr$lmekin %>% 
+                        model = "~ Sample_Group + (1|ptID)", run.lmerel = TRUE, 
+                        use.weights = TRUE, processors = 4, metrics = TRUE)
+kimma_nyy_rstr$lmerel <- kimma_nyy_rstr$lmerel %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "weights")
-kimma_nyy_rstr$lmekin.fit <- kimma_nyy_rstr$lmekin.fit %>% 
+kimma_nyy_rstr$lmerel.fit <- kimma_nyy_rstr$lmerel.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "kinship", weights = "weights")
 
@@ -116,7 +116,7 @@ save(kimma_nnn_rstr,kimma_nny_rstr,kimma_nyn_rstr,kimma_nyy_rstr,
 
 #Combine and format 1 df
 resultK <- bind_rows(kimma_nnn_rstr$lm, kimma_nny_rstr$lm,
-                     kimma_nyn_rstr$lmekin, kimma_nyy_rstr$lmekin) %>% 
+                     kimma_nyn_rstr$lmerel, kimma_nyy_rstr$lmerel) %>% 
   mutate(variable = recode(variable, "Sample_GroupRSTR"="Sample_Group")) %>% 
   filter(variable == "Sample_Group") %>% 
   mutate(subset = "all") %>% 
@@ -127,8 +127,8 @@ resultL <- bind_rows(limma_nnn_rstr,limma_nny_rstr) %>%
   filter(variable == "Sample_Group") %>% 
   mutate(subset = "all") %>% 
   #rename to match kimma results
-  dplyr::rename(gene=symbol, estimate=logFC,
-                pval=P.Value, FDR=adj.P.Val) %>% 
+  select(-gene) %>% 
+  dplyr::rename(gene=symbol) %>% 
   select(all_of(colnames(resultK)))
 
 resultS <- deseq2_nnn_rstr %>% 
@@ -142,7 +142,7 @@ rownames(rstr_result) <- NULL
 
 #Combine fit into 1 df
 rstr_metric <- bind_rows(kimma_nnn_rstr$lm.fit,kimma_nny_rstr$lm.fit,
-                         kimma_nyn_rstr$lmekin.fit,kimma_nyy_rstr$lmekin.fit) %>% 
+                         kimma_nyn_rstr$lmerel.fit,kimma_nyy_rstr$lmerel.fit) %>% 
   mutate(subset = "all") %>% 
   select(subset, software:weights,gene:adj_Rsq)
 
