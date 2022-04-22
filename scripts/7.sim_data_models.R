@@ -65,7 +65,7 @@ comb <- function(x, ...) {
 load("data_sim/simulated_kinship.RData")
 
 #### Limma and kimma ####
-cl <- makeCluster(6)
+cl <- makeCluster(30)
 doParallel::registerDoParallel(cl)
 result <- list()
 
@@ -74,6 +74,7 @@ result <- foreach(i=1:100, .combine='comb', .multicombine=TRUE,
                   .packages = c("tidyverse","limma","kimma",
                                 "foreach","doParallel")
                   ) %dopar% {
+  print(i)
   #### Data ####
   load(paste0("data_sim/simulated",i,".RData"))
   dat.sim$counts <- NULL
@@ -165,26 +166,26 @@ result <- foreach(i=1:100, .combine='comb', .multicombine=TRUE,
   # Paired = N, kinship = Y, weights = N
   fdrKnyn <- kmFit(dat.sim.noW, kin=kin.sim.unpair, use.weights = FALSE,
                    patientID = "libID",
-                   model = "~ condition + (1|libID)", run.lmekin = TRUE,
+                   model = "~ condition + (1|libID)", run.lmerel = TRUE,
                    processors=1)[[1]]
   endKnyn <- Sys.time()
 
   # Paired = N, kinship = Y, weights = Y
   fdrKnyy <- kmFit(dat.sim, kin=kin.sim.unpair, use.weights = TRUE,
                    patientID = "libID",
-                   model = "~ condition + (1|libID)", run.lmekin = TRUE,
+                   model = "~ condition + (1|libID)", run.lmerel = TRUE,
                    processors=1)[[1]]
   endKnyy <- Sys.time()
 
   # Paired = Y, kinship = Y, weights = N
   fdrKyyn <- kmFit(dat.sim.noW, kin=kin.sim, use.weights = FALSE,
-                   model = "~ condition + (1|ptID)", run.lmekin = TRUE,
+                   model = "~ condition + (1|ptID)", run.lmerel = TRUE,
                    processors=1)[[1]]
   endKyyn <- Sys.time()
 
   # Paired = Y, kinship = Y, weights = Y
   fdrKyyy <- kmFit(dat.sim, kin=kin.sim, use.weights = TRUE,
-                   model = "~ condition + (1|ptID)", run.lmekin = TRUE,
+                   model = "~ condition + (1|ptID)", run.lmerel = TRUE,
                    processors=1)[[1]]
   endKyyy <- Sys.time()
   
@@ -219,6 +220,7 @@ save(result, file="results/model_fit/simulated_limma_kimma.RData")
 #### Multi-processor kimma ####
 time_resultKM <- data.frame()
 # ss_resultKM <- data.frame()
+p = 6
 
 for(i in 1:100){
   #### Data ####
@@ -243,14 +245,14 @@ for(i in 1:100){
   start <- Sys.time()
   fdrKnnn <- kmFit(dat.sim.noW, use.weights = FALSE,
                    model = "~ condition", run.lm = TRUE, 
-                   processors=6)[[1]]
+                   processors=p)[[1]]
   endKnnn <- Sys.time()
   
   #### Paired = N, kinship = N, weights = Y ####
   ## kimma
   fdrKnny <- kmFit(dat.sim.voomW, use.weights = TRUE,
                    model = "~ condition", run.lm = TRUE, 
-                   processors=6)[[1]]
+                   processors=p)[[1]]
   endKnny <- Sys.time()
   
   #### Paired = Y, kinship = N, weights = N ####
@@ -258,7 +260,7 @@ for(i in 1:100){
   ## kimma
   fdrKynn <- kmFit(dat.sim.noW, use.weights = FALSE,
                    model = "~ condition + (1|ptID)", run.lme = TRUE, 
-                   processors=6)[[1]]
+                   processors=p)[[1]]
   endKynn <- Sys.time()
   
   #### Paired = Y, kinship = N, weights = Y ####
@@ -266,7 +268,7 @@ for(i in 1:100){
   ## kimma
   fdrKyny <- kmFit(dat.sim.voomW, use.weights = TRUE,
                    model = "~ condition + (1|ptID)", run.lme = TRUE, 
-                   processors=6)[[1]]
+                   processors=p)[[1]]
   endKyny <- Sys.time()
   
   #### kinship = Y ####
@@ -276,27 +278,27 @@ for(i in 1:100){
   # Paired = N, kinship = Y, weights = N
   fdrKnyn <- kmFit(dat.sim.noW, kin=kin.sim.unpair, use.weights = FALSE,
                    patientID = "libID",
-                   model = "~ condition + (1|libID)", run.lmekin = TRUE, 
-                   processors=6)[[1]]
+                   model = "~ condition + (1|libID)", run.lmerel = TRUE, 
+                   processors=p)[[1]]
   endKnyn <- Sys.time()
   
   # Paired = N, kinship = Y, weights = Y
   fdrKnyy <- kmFit(dat.sim, kin=kin.sim.unpair, use.weights = TRUE,
                    patientID = "libID",
-                   model = "~ condition + (1|libID)", run.lmekin = TRUE, 
-                   processors=6)[[1]]
+                   model = "~ condition + (1|libID)", run.lmerel = TRUE, 
+                   processors=p)[[1]]
   endKnyy <- Sys.time()
   
   # Paired = Y, kinship = Y, weights = N
   fdrKyyn <- kmFit(dat.sim.noW, kin=kin.sim, use.weights = FALSE,
-                   model = "~ condition + (1|ptID)", run.lmekin = TRUE, 
-                   processors=6)[[1]]
+                   model = "~ condition + (1|ptID)", run.lmerel = TRUE, 
+                   processors=p)[[1]]
   endKyyn <- Sys.time()
   
   # Paired = Y, kinship = Y, weights = Y
   fdrKyyy <- kmFit(dat.sim, kin=kin.sim, use.weights = TRUE,
-                   model = "~ condition + (1|ptID)", run.lmekin = TRUE, 
-                   processors=6)[[1]]
+                   model = "~ condition + (1|ptID)", run.lmerel = TRUE, 
+                   processors=p)[[1]]
   endKyyy <- Sys.time()
   
   #### sensitivity and specificity ####
@@ -328,6 +330,7 @@ save(time_resultKM, #ss_resultKM,
 
 ss_resultD <- data.frame()
 time_resultD <- data.frame()
+p = 6
 
 for(i in 1:100) {
   #### Data ####
@@ -365,7 +368,7 @@ for(i in 1:100) {
   
   fitDynyM <- dream(dat.sim.dreamW, ~condition + (1|ptID),
                    useWeights = TRUE,
-                   BPPARAM = SnowParam(6),
+                   BPPARAM = SnowParam(p),
                    dat.sim.dreamW$targets, REML=TRUE)
   efitDynyM <- eBayes(fitDynyM)
   fdrDynyM <- extract_lmFit(design = fitDynyM$design, fit=efitDynyM) %>% 
@@ -387,7 +390,7 @@ for(i in 1:100) {
   
   fitDynnM <- dream(dat.sim.noW, ~condition + (1|ptID),
                    useWeights = FALSE,
-                   BPPARAM = SnowParam(6),
+                   BPPARAM = SnowParam(p),
                    dat.sim.noW$targets, REML=TRUE)
   efitDynnM <- eBayes(fitDynnM)
   fdrDynnM <- extract_lmFit(design = fitDynnM$design, fit=efitDynnM) %>% 
@@ -416,6 +419,7 @@ save(time_resultD, ss_resultD,
      file="results/model_fit/simulated_dream.RData")
 
 #### DESeq2 ####
+p = 6
 ss_resultS <- data.frame()
 time_resultS <- data.frame()
 
@@ -445,7 +449,7 @@ for(i in 1:100){
                                          colData = dat.sim$targets,
                                          design= ~ condition)
   fitSnnnM <- DESeq(dat.sim.nnnM, 
-                    parallel =  TRUE, BPPARAM = MulticoreParam(6))
+                    parallel =  TRUE, BPPARAM = MulticoreParam(p))
   fdrSnnnM <- as.data.frame(results(fitSnnnM)) %>% 
     dplyr::rename(pval=pvalue, FDR=padj) %>% 
     rownames_to_column("gene") %>% 
@@ -470,7 +474,7 @@ for(i in 1:100){
                                          colData = dat.sim$targets,
                                          design= ~ ptID + condition)
   fitSynnM <- DESeq(dat.sim.ynnM, 
-                    parallel =  TRUE, BPPARAM = MulticoreParam(6))
+                    parallel =  TRUE, BPPARAM = MulticoreParam(p))
   fdrSynnM <- as.data.frame(results(fitSynnM)) %>% 
     dplyr::rename(pval=pvalue, FDR=padj) %>% 
     rownames_to_column("gene") %>% 
@@ -479,7 +483,7 @@ for(i in 1:100){
   
   #### sensitivity and specificity ####
   #Don't run on multi-processor result. Same as single processor
-  for(m in c("fitSnnn","fdrSynn")){
+  for(m in c("fdrSnnn","fdrSynn")){
     if(!is.null(get(m))){
       ss_resultS <- ss_calc(i, dat.sim, get(m), m) %>% 
         bind_rows(ss_resultS)
@@ -500,10 +504,10 @@ save(time_resultS, ss_resultS,
 
 #### Combine and format results ####
 
-load("results/model_fit/simulated_limma_kimma.RData")
-load("results/model_fit/simulated_kimma_multi.RData")
-load("results/model_fit/simulated_dream.RData")
-load("results/model_fit/simulated_deseq.RData")
+load("results/model_fit/simulated/simulated_limma_kimma.RData")
+load("results/model_fit/simulated/simulated_kimma_multi.RData")
+load("results/model_fit/simulated/simulated_dream.RData")
+load("results/model_fit/simulated/simulated_deseq.RData")
 
 time_result <- bind_rows(result[[2]]) %>% 
   bind_rows(bind_rows(time_resultKM)) %>% 
