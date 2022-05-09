@@ -80,11 +80,11 @@ kimma_yny_condition_unrelated <- kmFit(dat = datV.ltbi.unrelated,
                                        use.weights = TRUE, metrics = TRUE)
 kimma_yny_condition_unrelated$lme <- kimma_yny_condition_unrelated$lme %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "no kinship", weights = "weights",
+         kinship = "no kinship", weights = "voom weights",
          subset="unrelated")
 kimma_yny_condition_unrelated$lme.fit <- kimma_yny_condition_unrelated$lme.fit %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "no kinship", weights = "weights",
+         kinship = "no kinship", weights = "voom weights",
          subset="unrelated")
 
 # Paired = Y, kinship = Y, weights = N
@@ -106,11 +106,11 @@ kimma_yyy_condition_unrelated <- kmFit(dat = datV.ltbi.unrelated, kin=kin.unrela
                              use.weights = TRUE, metrics = TRUE)
 kimma_yyy_condition_unrelated$lmerel <- kimma_yyy_condition_unrelated$lmerel %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "kinship", weights = "weights",
+         kinship = "kinship", weights = "voom weights",
          subset="unrelated")
 kimma_yyy_condition_unrelated$lmerel.fit <- kimma_yyy_condition_unrelated$lmerel.fit %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "kinship", weights = "weights",
+         kinship = "kinship", weights = "voom weights",
          subset="unrelated")
 
 #### related ####
@@ -133,11 +133,11 @@ kimma_yny_condition_related <- kmFit(dat = datV.ltbi.related,
                                      use.weights = TRUE, metrics = TRUE)
 kimma_yny_condition_related$lme <- kimma_yny_condition_related$lme %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "no kinship", weights = "weights",
+         kinship = "no kinship", weights = "voom weights",
          subset="related")
 kimma_yny_condition_related$lme.fit <- kimma_yny_condition_related$lme.fit %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "no kinship", weights = "weights",
+         kinship = "no kinship", weights = "voom weights",
          subset="related")
 
 # Paired = Y, kinship = Y, weights = N
@@ -159,11 +159,11 @@ kimma_yyy_condition_related <- kmFit(dat = datV.ltbi.related, kin=kin.related,
                                        use.weights = TRUE, metrics = TRUE)
 kimma_yyy_condition_related$lmerel <- kimma_yyy_condition_related$lmerel %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "kinship", weights = "weights",
+         kinship = "kinship", weights = "voom weights",
          subset="related")
 kimma_yyy_condition_related$lmerel.fit <- kimma_yyy_condition_related$lmerel.fit %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "kinship", weights = "weights",
+         kinship = "kinship", weights = "voom weights",
          subset="related")
 
 #### Save ####

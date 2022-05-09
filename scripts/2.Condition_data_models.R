@@ -45,10 +45,12 @@ kimma_nnn_condition <- kmFit(dat = datV.ltbi,
 
 kimma_nnn_condition$lm <- kimma_nnn_condition$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "no kinship", weights = "no weights")
+         kinship = "no kinship", weights = "no weights",
+         weights_type = "no weights")
 kimma_nnn_condition$lm.fit <- kimma_nnn_condition$lm.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "no kinship", weights = "no weights")
+         kinship = "no kinship", weights = "no weights",
+         weights_type = "no weights")
 
 # Paired = N, kinship = N, weights = Y
 kimma_nny_condition <- kmFit(dat = datV.ltbi,
@@ -56,10 +58,24 @@ kimma_nny_condition <- kmFit(dat = datV.ltbi,
                              use.weights = TRUE, metrics = TRUE)
 kimma_nny_condition$lm <- kimma_nny_condition$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "no kinship", weights = "weights")
+         kinship = "no kinship", weights = "weights",
+         weights_type = "voom weights")
 kimma_nny_condition$lm.fit <- kimma_nny_condition$lm.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "no kinship", weights = "weights")
+         kinship = "no kinship", weights = "weights",
+         weights_type = "voom weights")
+
+kimma_nny2_condition <- kmFit(dat = datD.ltbi,
+                             model = "~ condition", run.lm = TRUE, 
+                             use.weights = TRUE, metrics = TRUE)
+kimma_nny2_condition$lm <- kimma_nny2_condition$lm %>% 
+  mutate(software = "kimma", paired = "unpaired",
+         kinship = "no kinship", weights = "weights",
+         weights_type = "dream weights")
+kimma_nny2_condition$lm.fit <- kimma_nny2_condition$lm.fit %>% 
+  mutate(software = "kimma", paired = "unpaired",
+         kinship = "no kinship", weights = "weights",
+         weights_type = "dream weights")
 
 #### Paired ####
 # Paired = Y, kinship = N, weights = N
@@ -69,10 +85,12 @@ kimma_ynn_condition <- kmFit(dat = datV.ltbi,
 
 kimma_ynn_condition$lme <- kimma_ynn_condition$lme %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "no kinship", weights = "no weights")
+         kinship = "no kinship", weights = "no weights",
+         weights_type = "no weights")
 kimma_ynn_condition$lme.fit <- kimma_ynn_condition$lme.fit %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "no kinship", weights = "no weights")
+         kinship = "no kinship", weights = "no weights",
+         weights_type = "no weights")
 
 # Paired = Y, kinship = N, weights = Y
 kimma_yny_condition <- kmFit(dat = datV.ltbi,
@@ -80,10 +98,24 @@ kimma_yny_condition <- kmFit(dat = datV.ltbi,
                              use.weights = TRUE, metrics = TRUE)
 kimma_yny_condition$lme <- kimma_yny_condition$lme %>% 
   mutate(software = "kimma", paired = "paired",
-kimma_yny_condition$lme.fit <- kimma_ynn_condition$lme.fit %>% 
+         kinship = "no kinship", weights = "weights",
+         weights_type = "voom weights")
 kimma_yny_condition$lme.fit <- kimma_yny_condition$lme.fit %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "no kinship", weights = "weights")
+         kinship = "no kinship", weights = "weights",
+         weights_type = "voom weights")
+
+kimma_yny2_condition <- kmFit(dat = datD.ltbi,
+                             model = "~ condition + (1|ptID)", run.lme = TRUE, 
+                             use.weights = TRUE, metrics = TRUE)
+kimma_yny2_condition$lme <- kimma_yny2_condition$lme %>% 
+  mutate(software = "kimma", paired = "paired",
+         kinship = "no kinship", weights = "weights",
+         weights_type = "dream weights")
+kimma_yny2_condition$lme.fit <- kimma_yny2_condition$lme.fit %>% 
+  mutate(software = "kimma", paired = "paired",
+         kinship = "no kinship", weights = "weights",
+         weights_type = "dream weights")
 
 # Paired = Y, kinship = Y, weights = N
 kimma_yyn_condition <- kmFit(dat = datV.ltbi, kin=kin,
@@ -91,10 +123,12 @@ kimma_yyn_condition <- kmFit(dat = datV.ltbi, kin=kin,
                              use.weights = FALSE, metrics = TRUE)
 kimma_yyn_condition$lmerel <- kimma_yyn_condition$lmerel %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "kinship", weights = "no weights")
+         kinship = "kinship", weights = "no weights",
+         weights_type = "no weights")
 kimma_yyn_condition$lmerel.fit <- kimma_yyn_condition$lmerel.fit %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "kinship", weights = "no weights")
+         kinship = "kinship", weights = "no weights",
+         weights_type = "no weights")
 
 # Paired = Y, kinship = Y, weights = Y
 kimma_yyy_condition <- kmFit(dat = datV.ltbi, kin=kin,
@@ -102,10 +136,24 @@ kimma_yyy_condition <- kmFit(dat = datV.ltbi, kin=kin,
                              use.weights = TRUE, metrics = TRUE)
 kimma_yyy_condition$lmerel <- kimma_yyy_condition$lmerel %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "kinship", weights = "weights")
+         kinship = "kinship", weights = "weights",
+         weights_type = "voom weights")
 kimma_yyy_condition$lmerel.fit <- kimma_yyy_condition$lmerel.fit %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "kinship", weights = "weights")
+         kinship = "kinship", weights = "weights",
+         weights_type = "voom weights")
+
+kimma_yyy2_condition <- kmFit(dat = datD.ltbi, kin=kin,
+                             model = "~ condition + (1|ptID)", run.lmerel = TRUE, 
+                             use.weights = TRUE, metrics = TRUE)
+kimma_yyy2_condition$lmerel <- kimma_yyy2_condition$lmerel %>% 
+  mutate(software = "kimma", paired = "paired",
+         kinship = "kinship", weights = "weights",
+         weights_type = "dream weights")
+kimma_yyy2_condition$lmerel.fit <- kimma_yyy2_condition$lmerel.fit %>% 
+  mutate(software = "kimma", paired = "paired",
+         kinship = "kinship", weights = "weights",
+         weights_type = "dream weights")
 
 #### limma ####
 mm <- model.matrix(~ condition, data=datV.ltbi$targets)
@@ -118,7 +166,8 @@ fit <- lmFit(object = datV.ltbi.noW, design = mm)
 efit <- eBayes(fit)
 limma_nnn_condition  <- extract_lmFit(design=mm, fit=efit) %>% 
   mutate(software = "limma", paired = "unpaired",
-         kinship = "no kinship", weights = "no weights")
+         kinship = "no kinship", weights = "no weights",
+         weights_type = "no weights")
 
 # Paired = N, kinship = N, weights = Y
 fit <- lmFit(object = datV.ltbi, design = mm,
@@ -126,7 +175,8 @@ fit <- lmFit(object = datV.ltbi, design = mm,
 efit <- eBayes(fit)
 limma_nny_condition <- extract_lmFit(design=mm, fit=efit) %>% 
   mutate(software = "limma", paired = "unpaired",
-         kinship = "no kinship", weights = "weights")
+         kinship = "no kinship", weights = "weights",
+         weights_type = "voom weights")
 
 #### paired ####
 # Paired = Y, kinship = N, weights = N
@@ -138,7 +188,8 @@ efit <- eBayes(lmFit(object = datV.ltbi.noW$E, design = mm,
                      correlation=dupCor$consensus.correlation))
 limma_ynn_condition <- extract_lmFit(design = mm, fit = efit)  %>% 
   mutate(software = "limma", paired = "paired",
-         kinship = "no kinship", weights = "no weights")
+         kinship = "no kinship", weights = "no weights",
+         weights_type = "no weights")
 
 # Paired = Y, kinship = N, weights = Y
 dupCor <- duplicateCorrelation(object = datV.ltbi$E,
@@ -150,7 +201,8 @@ efit <- eBayes(lmFit(object = datV.ltbi$E, design = mm,
                      weights = datV.ltbi$weights))
 limma_yny_condition <- extract_lmFit(design = mm, fit = efit)  %>% 
   mutate(software = "limma", paired = "paired",
-         kinship = "no kinship", weights = "weights")
+         kinship = "no kinship", weights = "weights",
+         weights_type = "voom weights")
 
 #### DESeq2 #### 
 # Paired = N, kinship = N, weights = N
@@ -164,7 +216,8 @@ deseq2_nnn_condition <- as.data.frame(results(fit)) %>%
   rownames_to_column("gene") %>% 
   mutate(variable = "condition") %>% 
   mutate(software = "DESeq2", paired = "unpaired",
-         kinship = "no kinship", weights = "no weights")
+         kinship = "no kinship", weights = "no weights",
+         weights_type = "no weights")
 
 # Paired = Y, kinship = N, weights = N
 datS <- DESeqDataSetFromMatrix(countData = round(dat.ltbi$counts,digits=0),
@@ -177,7 +230,8 @@ deseq2_ynn_condition <- as.data.frame(results(fit)) %>%
   rownames_to_column("gene") %>% 
   mutate(variable = "condition") %>% 
   mutate(software = "DESeq2", paired = "paired",
-         kinship = "no kinship", weights = "no weights")
+         kinship = "no kinship", weights = "no weights",
+         weights_type = "no weights")
 
 #### dream ####
 # Paired = Y, kinship = N, weights = N
@@ -192,7 +246,8 @@ efit <- eBayes(fit)
 dream_ynn_condition <- extract_lmFit(design = fit$design, fit=efit) %>% 
   mutate(geneName=symbol) %>% 
   mutate(software = "dream", paired = "paired",
-         kinship = "no kinship", weights = "no weights")
+         kinship = "no kinship", weights = "no weights",
+         weights_type = "no weights")
 
 # Paired = Y, kinship = N, weights = Y
 fit <- dream(datD.ltbi, ~condition + (1|ptID),
@@ -203,24 +258,31 @@ efit <- eBayes(fit)
 dream_yny_condition <- extract_lmFit(design = fit$design, fit=efit) %>% 
   mutate(geneName=symbol) %>% 
   mutate(software = "dream", paired = "paired",
-         kinship = "no kinship", weights = "weights")
+         kinship = "no kinship", weights = "weights",
+         weights_type = "dream weights")
 
 #### Save ####
 #Save indiv results for easier updating in future
-save(kimma_nnn_condition,kimma_nny_condition,kimma_ynn_condition,kimma_yny_condition,
-     kimma_yyn_condition,kimma_yyy_condition,limma_nnn_condition,limma_nny_condition,
-     limma_ynn_condition,limma_yny_condition,deseq2_nnn_condition,deseq2_ynn_condition,
+save(kimma_nnn_condition,kimma_nny_condition,kimma_nny2_condition,
+     kimma_ynn_condition,kimma_yny_condition,kimma_yny2_condition,
+     kimma_yyn_condition,kimma_yyy_condition,kimma_yyy2_condition,
+     limma_nnn_condition,limma_nny_condition,
+     limma_ynn_condition,limma_yny_condition,
+     deseq2_nnn_condition,deseq2_ynn_condition,
      dream_ynn_condition,dream_yny_condition,
      file="results/model_fit/condition/condition_all.RData")
 
 #Combine and format DEG into 1 df
 resultK <- bind_rows(kimma_nnn_condition$lm, kimma_nny_condition$lm,
+                     kimma_nny2_condition$lm,
                      kimma_ynn_condition$lme, kimma_yny_condition$lme,
-                     kimma_yyn_condition$lmerel,kimma_yyy_condition$lmerel) %>% 
+                     kimma_yny2_condition$lme,
+                     kimma_yyn_condition$lmerel,kimma_yyy_condition$lmerel,
+                     kimma_yyy2_condition$lmerel) %>% 
   mutate(variable = recode(variable, "conditionTB"="condition")) %>% 
   filter(variable == "condition") %>% 
   mutate(subset = "all") %>% 
-  select(subset, software:weights,gene:FDR)
+  select(subset, software:weights_type,gene:FDR)
 
 resultL <- bind_rows(limma_ynn_condition, limma_yny_condition) %>% 
   dplyr::rename(symbol=gene) %>% 
@@ -243,11 +305,17 @@ condition_result <- bind_rows(resultK, resultL, resultS)
 rownames(condition_result) <- NULL
 
 #Combine fit into 1 df
-condition_metric <- bind_rows(kimma_nnn_condition$lm.fit, kimma_nny_condition$lm.fit,
-                     kimma_ynn_condition$lme.fit, kimma_yny_condition$lme.fit,
-                     kimma_yyn_condition$lmerel.fit, kimma_yyy_condition$lmerel.fit) %>% 
+condition_metric <- bind_rows(kimma_nnn_condition$lm.fit, 
+                              kimma_nny_condition$lm.fit,
+                              kimma_nny2_condition$lm.fit,
+                              kimma_ynn_condition$lme.fit, 
+                              kimma_yny_condition$lme.fit,
+                              kimma_yny2_condition$lme.fit,
+                              kimma_yyn_condition$lmerel.fit,
+                              kimma_yyy_condition$lmerel.fit,
+                              kimma_yyy2_condition$lmerel.fit) %>% 
   mutate(subset = "all") %>% 
-  select(subset, software:weights,gene:adj_Rsq)
+  select(subset, software:weights_type,gene:adj_Rsq)
 
 #Save
 save(condition_result, condition_metric, 
