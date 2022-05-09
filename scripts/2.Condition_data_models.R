@@ -54,10 +54,10 @@ kimma_nnn_condition$lm.fit <- kimma_nnn_condition$lm.fit %>%
 kimma_nny_condition <- kmFit(dat = datV.ltbi,
                              model = "~ condition", run.lm = TRUE, 
                              use.weights = TRUE, metrics = TRUE)
-kimma_nny_condition$lm <- kimma_nnn_condition$lm %>% 
+kimma_nny_condition$lm <- kimma_nny_condition$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "no kinship", weights = "weights")
-kimma_nny_condition$lm.fit <- kimma_nnn_condition$lm.fit %>% 
+kimma_nny_condition$lm.fit <- kimma_nny_condition$lm.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
          kinship = "no kinship", weights = "weights")
 
@@ -78,10 +78,10 @@ kimma_ynn_condition$lme.fit <- kimma_ynn_condition$lme.fit %>%
 kimma_yny_condition <- kmFit(dat = datV.ltbi,
                              model = "~ condition + (1|ptID)", run.lme = TRUE, 
                              use.weights = TRUE, metrics = TRUE)
-kimma_yny_condition$lme <- kimma_ynn_condition$lme %>% 
+kimma_yny_condition$lme <- kimma_yny_condition$lme %>% 
   mutate(software = "kimma", paired = "paired",
-         kinship = "no kinship", weights = "weights")
 kimma_yny_condition$lme.fit <- kimma_ynn_condition$lme.fit %>% 
+kimma_yny_condition$lme.fit <- kimma_yny_condition$lme.fit %>% 
   mutate(software = "kimma", paired = "paired",
          kinship = "no kinship", weights = "weights")
 
