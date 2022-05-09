@@ -33,36 +33,36 @@ unrelated <- kin.summ %>%
   pull(ptID)
 
 #Subset unrelated
-#Subset to MEDIA vs TB in LTBI samples
-datV.media.unrelated <- datV
-datV.media.unrelated$targets <- datV.media.unrelated$targets %>% 
-  filter(ptID %in% unrelated & condition == "MEDIA")
-datV.media.unrelated$E <- as.data.frame(datV.media.unrelated$E) %>% 
-  select(all_of(datV.media.unrelated$targets$libID))
-# identical(colnames(datV.media.unrelated$E), datV.media.unrelated$targets$libID)
-datV.media.unrelated$weights <- as.data.frame(datV.media.unrelated$weights) %>% 
-  select(all_of(datV.media.unrelated$targets$libID)) %>% 
+#Subset to RSTR vs LTBI in TB samples
+datV.tb.unrelated <- datV
+datV.tb.unrelated$targets <- datV.tb.unrelated$targets %>% 
+  filter(ptID %in% unrelated & condition == "TB")
+datV.tb.unrelated$E <- as.data.frame(datV.tb.unrelated$E) %>% 
+  select(all_of(datV.tb.unrelated$targets$libID))
+# identical(colnames(datV.tb.unrelated$E), datV.tb.unrelated$targets$libID)
+datV.tb.unrelated$weights <- as.data.frame(datV.tb.unrelated$weights) %>% 
+  select(all_of(datV.tb.unrelated$targets$libID)) %>% 
   as.matrix()
 
 kin.unrelated <- kin[unrelated,unrelated]
 
 #Subset related
-#Subset to MEDIA vs TB in LTBI samples
-datV.media.related <- datV
-datV.media.related$targets <- datV.media.related$targets %>% 
-  filter(ptID %in% related & condition == "MEDIA")
-datV.media.related$E <- as.data.frame(datV.media.related$E) %>% 
-  select(all_of(datV.media.related$targets$libID))
-# identical(colnames(datV.media.related$E), datV.media.related$targets$libID)
-datV.media.related$weights <- as.data.frame(datV.media.related$weights) %>% 
-  select(all_of(datV.media.related$targets$libID)) %>% 
+#Subset to TB vs TB in LTBI samples
+datV.tb.related <- datV
+datV.tb.related$targets <- datV.tb.related$targets %>% 
+  filter(ptID %in% related & condition == "TB")
+datV.tb.related$E <- as.data.frame(datV.tb.related$E) %>% 
+  select(all_of(datV.tb.related$targets$libID))
+# identical(colnames(datV.tb.related$E), datV.tb.related$targets$libID)
+datV.tb.related$weights <- as.data.frame(datV.tb.related$weights) %>% 
+  select(all_of(datV.tb.related$targets$libID)) %>% 
   as.matrix()
 
 kin.related <- kin[related,related]
 
 #### unrelated ####
 # Paired = N, kinship = N, weights = N
-kimma_nnn_rstr_unrelated <- kmFit(dat = datV.media.unrelated, 
+kimma_nnn_rstr_unrelated <- kmFit(dat = datV.tb.unrelated, 
                                   model = "~ Sample_Group", run.lm = TRUE, 
                                   use.weights = FALSE, metrics = TRUE)
 kimma_nnn_rstr_unrelated$lm <- kimma_nnn_rstr_unrelated$lm %>% 
@@ -75,20 +75,20 @@ kimma_nnn_rstr_unrelated$lm.fit <- kimma_nnn_rstr_unrelated$lm.fit %>%
          subset="unrelated")
 
 # Paired = N, kinship = N, weights = Y
-kimma_nny_rstr_unrelated <- kmFit(dat = datV.media.unrelated, 
+kimma_nny_rstr_unrelated <- kmFit(dat = datV.tb.unrelated, 
                                   model = "~ Sample_Group", run.lm = TRUE, 
                                   use.weights = TRUE, metrics = TRUE)
 kimma_nny_rstr_unrelated$lm <- kimma_nny_rstr_unrelated$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "no kinship", weights = "weights",
+         kinship = "no kinship", weights = "voom weights",
          subset="unrelated")
 kimma_nny_rstr_unrelated$lm.fit <- kimma_nny_rstr_unrelated$lm.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "no kinship", weights = "weights",
+         kinship = "no kinship", weights = "voom weights",
          subset="unrelated")
 
 # Paired = N, kinship = Y, weights = N
-kimma_nyn_rstr_unrelated <- kmFit(dat = datV.media.unrelated, kin=kin.unrelated,
+kimma_nyn_rstr_unrelated <- kmFit(dat = datV.tb.unrelated, kin=kin.unrelated,
                                        model = "~ Sample_Group + (1|ptID)", run.lmerel = TRUE, 
                                        use.weights = FALSE, metrics = TRUE)
 kimma_nyn_rstr_unrelated$lmerel <- kimma_nyn_rstr_unrelated$lmerel %>% 
@@ -101,21 +101,21 @@ kimma_nyn_rstr_unrelated$lmerel.fit <- kimma_nyn_rstr_unrelated$lmerel.fit %>%
          subset="unrelated")
 
 # Paired = Y, kinship = Y, weights = Y
-kimma_nyy_rstr_unrelated <- kmFit(dat = datV.media.unrelated, kin=kin.unrelated,
+kimma_nyy_rstr_unrelated <- kmFit(dat = datV.tb.unrelated, kin=kin.unrelated,
                                        model = "~ Sample_Group + (1|ptID)", run.lmerel = TRUE, 
                                        use.weights = TRUE, metrics = TRUE)
 kimma_nyy_rstr_unrelated$lmerel <- kimma_nyy_rstr_unrelated$lmerel %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "kinship", weights = "weights",
+         kinship = "kinship", weights = "voom weights",
          subset="unrelated")
 kimma_nyy_rstr_unrelated$lmerel.fit <- kimma_nyy_rstr_unrelated$lmerel.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "kinship", weights = "weights",
+         kinship = "kinship", weights = "voom weights",
          subset="unrelated")
 
 #### related ####
 # Paired = N, kinship = N, weights = N
-kimma_nnn_rstr_related <- kmFit(dat = datV.media.related, 
+kimma_nnn_rstr_related <- kmFit(dat = datV.tb.related, 
                                   model = "~ Sample_Group", run.lm = TRUE, 
                                   use.weights = FALSE, metrics = TRUE)
 kimma_nnn_rstr_related$lm <- kimma_nnn_rstr_related$lm %>% 
@@ -128,20 +128,20 @@ kimma_nnn_rstr_related$lm.fit <- kimma_nnn_rstr_related$lm.fit %>%
          subset="related")
 
 # Paired = N, kinship = N, weights = Y
-kimma_nny_rstr_related <- kmFit(dat = datV.media.related, 
+kimma_nny_rstr_related <- kmFit(dat = datV.tb.related, 
                                   model = "~ Sample_Group", run.lm = TRUE, 
                                   use.weights = TRUE, metrics = TRUE)
 kimma_nny_rstr_related$lm <- kimma_nny_rstr_related$lm %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "no kinship", weights = "weights",
+         kinship = "no kinship", weights = "voom weights",
          subset="related")
 kimma_nny_rstr_related$lm.fit <- kimma_nny_rstr_related$lm.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "no kinship", weights = "weights",
+         kinship = "no kinship", weights = "voom weights",
          subset="related")
 
 # Paired = N, kinship = Y, weights = N
-kimma_nyn_rstr_related <- kmFit(dat = datV.media.related, kin=kin.related,
+kimma_nyn_rstr_related <- kmFit(dat = datV.tb.related, kin=kin.related,
                                      model = "~ Sample_Group + (1|ptID)", run.lmerel = TRUE, 
                                      use.weights = FALSE, metrics = TRUE)
 kimma_nyn_rstr_related$lmerel <- kimma_nyn_rstr_related$lmerel %>% 
@@ -154,16 +154,16 @@ kimma_nyn_rstr_related$lmerel.fit <- kimma_nyn_rstr_related$lmerel.fit %>%
          subset="related")
 
 # Paired = N, kinship = Y, weights = Y
-kimma_nyy_rstr_related <- kmFit(dat = datV.media.related, kin=kin.related,
+kimma_nyy_rstr_related <- kmFit(dat = datV.tb.related, kin=kin.related,
                                      model = "~ Sample_Group + (1|ptID)", run.lmerel = TRUE, 
                                      use.weights = TRUE, metrics = TRUE)
 kimma_nyy_rstr_related$lmerel <- kimma_nyy_rstr_related$lmerel %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "kinship", weights = "weights",
+         kinship = "kinship", weights = "voom weights",
          subset="related")
 kimma_nyy_rstr_related$lmerel.fit <- kimma_nyy_rstr_related$lmerel.fit %>% 
   mutate(software = "kimma", paired = "unpaired",
-         kinship = "kinship", weights = "weights",
+         kinship = "kinship", weights = "voom weights",
          subset="related")
 
 #### Save ####
@@ -172,7 +172,7 @@ save(kimma_nnn_rstr_unrelated,kimma_nny_rstr_unrelated,
      kimma_nyn_rstr_unrelated,kimma_nyy_rstr_unrelated,
      kimma_nnn_rstr_related,kimma_nny_rstr_related,
      kimma_nyn_rstr_related,kimma_nyy_rstr_related,
-     file="results/model_fit/sample_group/Sample_Group_subset_all.RData")
+     file="results/model_fit/sample_group/Sample_Group_subset_all_tb.RData")
 
 #Combine and format 1 df
 rstr_subset_result <- bind_rows(kimma_nnn_rstr_unrelated$lm,
@@ -202,4 +202,4 @@ rstr_subset_metric <- bind_rows(kimma_nnn_rstr_unrelated$lm.fit,
 
 #Save
 save(rstr_subset_result, rstr_subset_metric, 
-     file="results/rstr_subset_fit.RData")
+     file="results/rstr_tb_subset_fit.RData")
