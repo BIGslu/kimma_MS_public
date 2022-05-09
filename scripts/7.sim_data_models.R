@@ -85,6 +85,10 @@ result <- foreach(i=1:100, .combine='comb', .multicombine=TRUE,
   # Data with voom weights
   dat.sim.voomW <- dat.sim
   dat.sim.voomW$weights_dream <- NULL
+  # Data with dream weights
+  dat.sim.voomD <- dat.sim
+  dat.sim.voomD$weights <- dat.sim.voomD$weights_dream
+  dat.sim.voomW$weights_dream <- NULL
   
   # Set to NULL to capture errors
   fdrKnnn <- fdrKnny <- fdrKynn <- fdrKyny <- fdrKyyn <- fdrKyyy <- fdrLnnn <- fdrLnny <- fdrLynn <- fdrLyny <- NULL
@@ -119,6 +123,11 @@ result <- foreach(i=1:100, .combine='comb', .multicombine=TRUE,
                    model = "~ condition", run.lm = TRUE,
                    processors=1)[[1]]
   endKnny <- Sys.time()
+  
+  fdrKnny2 <- kmFit(dat.sim.voomD, use.weights = TRUE,
+                   model = "~ condition", run.lm = TRUE,
+                   processors=1)[[1]]
+  endKnny2 <- Sys.time()
   
   #### Paired = Y, kinship = N, weights = N ####
   print("YNN")
@@ -159,6 +168,11 @@ result <- foreach(i=1:100, .combine='comb', .multicombine=TRUE,
                    processors=1)[[1]]
   endKyny <- Sys.time()
   
+  fdrKyny2 <- kmFit(dat.sim.voomD, use.weights = TRUE,
+                   model = "~ condition + (1|ptID)", run.lme = TRUE, 
+                   processors=1)[[1]]
+  endKyny2 <- Sys.time()
+  
   #### kinship = Y ####
   print("XYX")
   ## kimma only
@@ -171,12 +185,18 @@ result <- foreach(i=1:100, .combine='comb', .multicombine=TRUE,
   endKnyn <- Sys.time()
 
   # Paired = N, kinship = Y, weights = Y
-  fdrKnyy <- kmFit(dat.sim, kin=kin.sim.unpair, use.weights = TRUE,
+  fdrKnyy <- kmFit(dat.sim.voomW, kin=kin.sim.unpair, use.weights = TRUE,
                    patientID = "libID",
                    model = "~ condition + (1|libID)", run.lmerel = TRUE,
                    processors=1)[[1]]
   endKnyy <- Sys.time()
 
+  fdrKnyy2 <- kmFit(dat.sim.voomD, kin=kin.sim.unpair, use.weights = TRUE,
+                   patientID = "libID",
+                   model = "~ condition + (1|libID)", run.lmerel = TRUE,
+                   processors=1)[[1]]
+  endKnyy2 <- Sys.time()
+  
   # Paired = Y, kinship = Y, weights = N
   fdrKyyn <- kmFit(dat.sim.noW, kin=kin.sim, use.weights = FALSE,
                    model = "~ condition + (1|ptID)", run.lmerel = TRUE,
@@ -184,10 +204,15 @@ result <- foreach(i=1:100, .combine='comb', .multicombine=TRUE,
   endKyyn <- Sys.time()
 
   # Paired = Y, kinship = Y, weights = Y
-  fdrKyyy <- kmFit(dat.sim, kin=kin.sim, use.weights = TRUE,
+  fdrKyyy <- kmFit(dat.sim.voomW, kin=kin.sim, use.weights = TRUE,
                    model = "~ condition + (1|ptID)", run.lmerel = TRUE,
                    processors=1)[[1]]
   endKyyy <- Sys.time()
+  
+  fdrKyyy2 <- kmFit(dat.sim.voomD, kin=kin.sim, use.weights = TRUE,
+                   model = "~ condition + (1|ptID)", run.lmerel = TRUE,
+                   processors=1)[[1]]
+  endKyyy2 <- Sys.time()
   
   #### sensitivity and specificity ####
   ss_result <- data.frame()
@@ -199,16 +224,19 @@ result <- foreach(i=1:100, .combine='comb', .multicombine=TRUE,
   }
   
   #### time ####
-  time_result <- data.frame(model=c("Lnnn", "Knnn", "Lnny", "Knny",
-                                    "Lynn", "Kynn", "Lyny", "Kyny",
-                                    "Knyn", "Knyy", "Kyyn", "Kyyy"),
+  time_result <- data.frame(model=c("Lnnn", "Knnn", "Lnny", "Knny", "Knny2",
+                                    "Lynn", "Kynn", "Lyny", "Kyny", "Kyny2",
+                                    "Knyn", "Knyy", "Knyy2",
+                                    "Kyyn", "Kyyy", "Kyyy2"),
                             simulation=i,
                             time_s=c(endLnnn-start, endKnnn-endLnnn,
-                                      endLnny-endKnnn, endKnny-endLnny,
-                                      endLynn-endKnny, endKynn-endLynn,
-                                      endLyny-endKynn, endKyny-endLyny,
-                                      endKnyn-endKyny, endKnyy-endKnyn,
-                                      endKyyn-endKnyy, endKyyy-endKyyn))
+                                     endLnny-endKnnn, endKnny-endLnny,
+                                     endKnny2-endKnny, endLynn-endKnny2, 
+                                     endKynn-endLynn, endLyny-endKynn, 
+                                     endKyny-endLyny, endKyny2-endKyny, 
+                                     endKnyn-endKyny2, endKnyy-endKnyn,
+                                     endKnyy2-endKnyy, endKyyn-endKnyy2,
+                                     endKyyy-endKyyn, endKyyy2-endKyyy))
   
   #### Final results ####
   list(ss_result, time_result)
@@ -219,6 +247,7 @@ save(result, file="results/model_fit/simulated_limma_kimma.RData")
 
 #### Multi-processor kimma ####
 time_resultKM <- data.frame()
+# Just for time
 # ss_resultKM <- data.frame()
 p = 6
 
@@ -233,6 +262,10 @@ for(i in 1:100){
   dat.sim.noW$weights <- NULL
   # Data with voom weights
   dat.sim.voomW <- dat.sim
+  dat.sim.voomW$weights_dream <- NULL
+  # Data with dream weights
+  dat.sim.voomD <- dat.sim
+  dat.sim.voomD$weights <- dat.sim.voomD$weights_dream
   dat.sim.voomW$weights_dream <- NULL
   
   # Set to NULL to capture errors
@@ -255,6 +288,11 @@ for(i in 1:100){
                    processors=p)[[1]]
   endKnny <- Sys.time()
   
+  fdrKnny2 <- kmFit(dat.sim.voomD, use.weights = TRUE,
+                   model = "~ condition", run.lm = TRUE, 
+                   processors=p)[[1]]
+  endKnny2 <- Sys.time()
+  
   #### Paired = Y, kinship = N, weights = N ####
   print("YNN")
   ## kimma
@@ -271,6 +309,11 @@ for(i in 1:100){
                    processors=p)[[1]]
   endKyny <- Sys.time()
   
+  fdrKyny2 <- kmFit(dat.sim.voomD, use.weights = TRUE,
+                   model = "~ condition + (1|ptID)", run.lme = TRUE, 
+                   processors=p)[[1]]
+  endKyny2 <- Sys.time()
+  
   #### kinship = Y ####
   print("XYX")
   ## kimma only
@@ -283,11 +326,17 @@ for(i in 1:100){
   endKnyn <- Sys.time()
   
   # Paired = N, kinship = Y, weights = Y
-  fdrKnyy <- kmFit(dat.sim, kin=kin.sim.unpair, use.weights = TRUE,
+  fdrKnyy <- kmFit(dat.sim.voomW, kin=kin.sim.unpair, use.weights = TRUE,
                    patientID = "libID",
                    model = "~ condition + (1|libID)", run.lmerel = TRUE, 
                    processors=p)[[1]]
   endKnyy <- Sys.time()
+  
+  fdrKnyy2 <- kmFit(dat.sim.voomD, kin=kin.sim.unpair, use.weights = TRUE,
+                   patientID = "libID",
+                   model = "~ condition + (1|libID)", run.lmerel = TRUE, 
+                   processors=p)[[1]]
+  endKnyy2 <- Sys.time()
   
   # Paired = Y, kinship = Y, weights = N
   fdrKyyn <- kmFit(dat.sim.noW, kin=kin.sim, use.weights = FALSE,
@@ -296,10 +345,15 @@ for(i in 1:100){
   endKyyn <- Sys.time()
   
   # Paired = Y, kinship = Y, weights = Y
-  fdrKyyy <- kmFit(dat.sim, kin=kin.sim, use.weights = TRUE,
+  fdrKyyy <- kmFit(dat.sim.voomW, kin=kin.sim, use.weights = TRUE,
                    model = "~ condition + (1|ptID)", run.lmerel = TRUE, 
                    processors=p)[[1]]
   endKyyy <- Sys.time()
+  
+  fdrKyyy2 <- kmFit(dat.sim.voomD, kin=kin.sim, use.weights = TRUE,
+                   model = "~ condition + (1|ptID)", run.lmerel = TRUE, 
+                   processors=p)[[1]]
+  endKyyy2 <- Sys.time()
   
   #### sensitivity and specificity ####
   #Dont run on multi-processor results. Same as single processor
@@ -309,15 +363,20 @@ for(i in 1:100){
   #       bind_rows(ss_resultKM)
   #   }
   # }
-  
   #### time ####
-  time_resultKM <- data.frame(model=c("KnnnM", "KnnyM", "KynnM", "KynyM",
-                                      "KnynM", "KnyyM", "KyynM", "KyyyM"),
+  time_resultKM <- data.frame(model=c("KnnnM", "KnnyM", "Knny2M", 
+                                      "KynnM", "KynyM", "Kyny2M",
+                                      "KnynM", "KnyyM", "Knyy2M", 
+                                      "KyynM", "KyyyM", "Kyyy2M"),
                               simulation=i,
                               time_s=c(endKnnn-start, endKnny-endKnnn, 
-                                       endKynn-endKnny, endKyny-endKynn, 
-                                       endKnyn-endKyny, endKnyy-endKnyn, 
-                                       endKyyn-endKnyy, endKyyy-endKyyn)) %>% 
+                                       endKnny2-endKnny,
+                                       endKynn-endKnny2, endKyny-endKynn, 
+                                       endKyny2-endKyny,
+                                       endKnyn-endKyny2, endKnyy-endKnyn, 
+                                       endKnyy2-endKnyy,
+                                       endKyyn-endKnyy2, endKyyy-endKyyn,
+                                       endKyyy2-endKyyy)) %>% 
     bind_rows(time_resultKM)
 }
 
@@ -362,7 +421,8 @@ for(i in 1:100) {
                    dat.sim.dreamW$targets, REML=TRUE)
   efitDyny <- eBayes(fitDyny)
   fdrDyny <- extract_lmFit(design = fitDyny$design, fit=efitDyny) %>% 
-    mutate(geneName=symbol)
+    select(-gene) %>% 
+    mutate(gene=symbol)
   
   endDyny <- Sys.time()
   
@@ -372,7 +432,8 @@ for(i in 1:100) {
                    dat.sim.dreamW$targets, REML=TRUE)
   efitDynyM <- eBayes(fitDynyM)
   fdrDynyM <- extract_lmFit(design = fitDynyM$design, fit=efitDynyM) %>% 
-    mutate(geneName=symbol)
+    select(-gene) %>% 
+    mutate(gene=symbol)
   
   endDynyM <- Sys.time()
   
@@ -384,7 +445,8 @@ for(i in 1:100) {
                    dat.sim.noW$targets, REML=TRUE)
   efitDynn <- eBayes(fitDynn)
   fdrDynn <- extract_lmFit(design = fitDynn$design, fit=efitDynn) %>% 
-    mutate(geneName=symbol)
+    select(-gene) %>% 
+    mutate(gene=symbol)
   
   endDynn <- Sys.time()
   
@@ -394,7 +456,8 @@ for(i in 1:100) {
                    dat.sim.noW$targets, REML=TRUE)
   efitDynnM <- eBayes(fitDynnM)
   fdrDynnM <- extract_lmFit(design = fitDynnM$design, fit=efitDynnM) %>% 
-    mutate(geneName=symbol)
+    select(-gene) %>% 
+    mutate(gene=symbol)
   
   endDynnM <- Sys.time()
   
@@ -515,8 +578,8 @@ time_result <- bind_rows(result[[2]]) %>%
   bind_rows(bind_rows(time_resultS)) %>%
   #format labels
   separate(model, into=c("trash","software","paired",
-                         "kinship","weights","processors"),
-           sep="", remove = FALSE) %>% 
+                         "kinship","weights1","weights_proc"),
+           sep="", remove = FALSE, extra = "merge") %>% 
   mutate(software = recode_factor(factor(software),
                                   "K"="kimma", "L"="limma",
                                   "D"="dream", "S"="DESeq2"),
@@ -524,11 +587,24 @@ time_result <- bind_rows(result[[2]]) %>%
                                 "n"="unpaired","y"="paired"),
          kinship = recode_factor(factor(kinship),
                                  "n"="no kinship","y"="kinship"),
-         weights = recode_factor(factor(weights),
+         weights = recode_factor(factor(weights1),
                                  "n"="no weights","y"="weights"),
-         processors = ifelse(is.na(processors), "1 processor", "6 processors"),
+         weights_type = paste0(weights1, weights_proc),
+         weights_type = ifelse(software == "dream" & weights != "no weights",
+                               "dream\nweights",
+                               weights_type),
+         weights_type = recode_factor(factor(weights_type),
+                                 "nNA"="no\nweights",
+                                 "nM"="no\nweights",
+                                 "yM"="voom\nweights",
+                                 "yNA"="voom\nweights",
+                                 "y2M"="dream\nweights",
+                                 "y2"="dream\nweights"),
+         processors = ifelse(is.na(weights_proc) | weights_proc == 2,
+                             "1 processor", "6 processors"),
          processors = factor(processors, c("1 processor","6 processors"))) %>% 
-  select(-trash)
+  select(model, kinship, paired, weights, weights_type, software,
+         processors, simulation, time_s)
 
 ss_result <- bind_rows(result[[1]]) %>% 
   bind_rows(bind_rows(ss_resultD)) %>%
@@ -536,7 +612,7 @@ ss_result <- bind_rows(result[[1]]) %>%
   #format labels
   mutate(model = gsub("fdr","", model)) %>% 
   separate(model, into=c("trash","software","paired",
-                         "kinship","weights","processors"),
+                         "kinship","weights1","weights_proc"),
            sep="", remove = FALSE) %>% 
   mutate(software = recode_factor(factor(software),
                                   "K"="kimma", "L"="limma",
@@ -545,11 +621,24 @@ ss_result <- bind_rows(result[[1]]) %>%
                                 "n"="unpaired","y"="paired"),
          kinship = recode_factor(factor(kinship),
                                  "n"="no kinship","y"="kinship"),
-         weights = recode_factor(factor(weights),
+         weights = recode_factor(factor(weights1),
                                  "n"="no weights","y"="weights"),
-         processors = ifelse(is.na(processors), "1 processor", "6 processors"),
+         weights_type = paste0(weights1, weights_proc),
+         weights_type = ifelse(software == "dream" & weights != "no weights", 
+                               "dream\nweights",
+                               weights_type),
+         weights_type = recode_factor(factor(weights_type),
+                                      "nNA"="no\nweights",
+                                      "nM"="no\nweights",
+                                      "yM"="voom\nweights",
+                                      "yNA"="voom\nweights",
+                                      "y2M"="dream\nweights",
+                                      "y2"="dream\nweights"),
+         processors = ifelse(is.na(weights_proc) | weights_proc == 2, 
+                             "1 processor", "6 processors"),
          processors = factor(processors, c("1 processor","6 processors"))) %>% 
-  select(-trash) 
+  select(model, kinship, paired, weights, weights_type, software,
+         processors, simulation, cutoff:genes_fdr)
 
 save(ss_result, time_result, 
      file="results/simulated_fit.RData")
