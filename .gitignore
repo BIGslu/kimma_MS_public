@@ -41,3 +41,4 @@ vignettes/*.pdf
 # MAC
 *.DS_Store
 data/RSTR_RNAseq_data_combined_clean.RData
+notes/kimma_MS_outline.docx
