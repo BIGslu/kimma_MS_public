@@ -60,6 +60,8 @@ datV.ltbi.related$weights <- as.data.frame(datV.ltbi.related$weights) %>%
 
 kin.related <- kin[related,related]
 
+save(related, unrelated, file="data/related.unrelated.RData")
+
 #### unrelated ####
 # Paired = Y, kinship = N, weights = N
 kimma_ynn_condition_unrelated <- kmFit(dat = datV.ltbi.unrelated, 
