@@ -150,10 +150,10 @@ p3 <- ggvenn(signif.ls2, show_percentage = FALSE,
 #### combine plots #####
 
 p <-p1+p2+p3+plot_spacer()
-# p
+p
 
-ggsave("figs/real_DEG_noKin.png", p, height=5.5, width = 8)
-# ggsave("figs/real_DEG_noKin.pdf", p, height=6, width = 9)
+ggsave("figs/Fig4.real_DEG_noKin.png", p, height=5.5, width = 8)
+# ggsave("figs/Fig4.real_DEG_noKin.pdf", p, height=6, width = 9)
 
 ##### Addtl results for text #####
 #how many hits between 0.05 and a higher cutoff

@@ -34,4 +34,4 @@ p1 <- time_trial_df %>%
 
 p1
 
-ggsave("figs/kimma_runtime.png", p1, width=3.5, height = 2.5)
+ggsave("figs/FigS1.kimma_runtime.png", p1, width=3.5, height = 2.5)

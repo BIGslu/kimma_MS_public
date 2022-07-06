@@ -13,7 +13,6 @@ aic <- condition_subset_metric %>%
   pivot_wider(names_from = kinship, values_from = AIC) 
 
 #### Unrelated, voom weights ####
-
 p1 <- aic %>% 
   filter(subset == "unrelated" & weights == "voom weights") %>% 
   mutate(best = ifelse(kinship<`no kinship`, "kinship",
@@ -120,7 +119,8 @@ p_combo <- p1_all + p2_all + p3 + p4 +
   plot_annotation(tag_levels = "A")
 # p_combo
 
-ggsave("figs/real_AIC_weights.png", p_combo, width=8, height=8)
+# ggsave("figs/FigS3.real_AIC_weights.pdf", p_combo, width=8, height=8)
+ggsave("figs/FigS3.real_AIC_weights.png", p_combo, width=8, height=8)
 
 #### Addtl metrics ####
 

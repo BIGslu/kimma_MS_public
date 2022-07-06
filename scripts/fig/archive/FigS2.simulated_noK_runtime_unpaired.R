@@ -116,6 +116,6 @@ p1b_signif <- p1b +
 
 #### Save ####
 
-ggsave(filename="figs/simulated_noK_runtime_unpaired.png", p1a_signif, width=3.5, height=5)
-ggsave(filename="figs/simulated_noK_runtime_paired.png", p1b_signif, width=3.5, height=5)
+ggsave(filename="figs/Fig3.simulated_noK_runtime_paired.png", p1a_signif, width=3.5, height=5)
+# ggsave(filename="figs/Fig3.simulated_noK_runtime_paired.pdf", p1b_signif, width=3.5, height=5)
 

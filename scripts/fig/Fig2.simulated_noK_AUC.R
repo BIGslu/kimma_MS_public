@@ -70,65 +70,17 @@ p3Pb <- p3 +
         axis.text.x = element_text(angle = 45, hjust = 1)) 
 p3Pb
 
-ggsave("figs/simulated_noK_AUC.png", p3Pb, width=6, height=4)
-# ggsave("figs/simulated_noK_AUC.pdf", p3Pb, width=6, height=4)
+ggsave("figs/Fig2.simulated_noK_AUC.png", p3Pb, width=6, height=4)
+# ggsave("figs/Fig2.simulated_noK_AUC.pdf", p3Pb, width=6, height=4)
 
 #### direct compare ss ####
 ss_compare <- ss_result %>% 
-  select(kinship:cutoff, sensitivity_fdr, specificity_fdr) %>% 
-  filter(processors == "1 processor" & software %in% c("kimma","limma") & 
-           kinship == "no kinship" & weights_type != "dream\nweights" &
-           cutoff == 0.05 & paired == "unpaired") %>% 
-  pivot_wider(names_from = software, 
-              values_from = sensitivity_fdr:specificity_fdr) %>% 
-  mutate(sen_diff = sensitivity_fdr_kimma-sensitivity_fdr_limma,
-         spec_diff = specificity_fdr_kimma-specificity_fdr_limma) %>% 
-  group_by(kinship, paired, weights, weights_type, processors, cutoff) %>% 
-  summarise(mean_sen_diff=mean(sen_diff),
-            max_sen_diff=max(sen_diff),
-            min_sen_diff=min(sen_diff),
-            mean_spec_diff=mean(spec_diff),
-            max_spec_diff=max(spec_diff),
-            min_spec_diff=min(spec_diff))
-
-ss_compare2 <- ss_result %>% 
-  filter(cutoff %in% c(0.05)) %>% 
+  filter(processors == "1 processor" &  kinship == "no kinship" & cutoff == 0.05) %>% 
+  select(kinship:processors, cutoff,
+         TP_fdr:TN_fdr, sensitivity_fdr, specificity_fdr) %>% 
   group_by(kinship, paired, weights, weights_type, 
            software, processors, cutoff) %>% 
-  summarise(meanTP = mean(TP_fdr),
-            meanFP = mean(FP_fdr),
-            meanFN = mean(FN_fdr),
-            meanTN = mean(TN_fdr)) %>% 
-  filter(software %in%c("kimma","limma") & kinship =="no kinship" &
-           weights_type != "dream\nweights" & paired == "unpaired")
+  summarise_all(~mean(.)) %>% 
+  rename_all(~gsub("_fdr", "", .))
 
-ss_compare3 <- ss_result %>% 
-  select(kinship:cutoff, sensitivity_fdr:specificity_fdr) %>% 
-  filter(processors == "1 processor" & software %in% c("kimma","dream") & 
-           kinship == "no kinship" & weights_type != "voom\nweights" &
-           cutoff == 0.05 & paired == "paired") %>% 
-  pivot_wider(names_from = software, 
-              values_from = sensitivity_fdr:specificity_fdr) %>% 
-  mutate(sen_diff = sensitivity_fdr_kimma-sensitivity_fdr_dream,
-         spec_diff = specificity_fdr_kimma-specificity_fdr_dream) %>% 
-  group_by(kinship, paired, weights, weights_type, processors, cutoff) %>% 
-  summarise(mean_sen_diff=mean(sen_diff),
-            max_sen_diff=max(sen_diff),
-            min_sen_diff=min(sen_diff),
-            mean_spec_diff=mean(spec_diff),
-            max_spec_diff=max(spec_diff),
-            min_spec_diff=min(spec_diff))
-
-ss_compare4 <- ss_result %>% 
-  filter(cutoff %in% c(0.05)) %>% 
-  group_by(kinship, paired, weights, weights_type, 
-           software, processors, cutoff) %>% 
-  summarise(meanTP = mean(TP_fdr),
-            meanFP = mean(FP_fdr),
-            meanFN = mean(FN_fdr),
-            meanTN = mean(TN_fdr)) %>% 
-  filter(software %in%c("kimma","dream") & kinship =="no kinship" &
-           weights_type != "voom\nweights" & paired == "paired")
-
-# negative = better in limma or dream
-# positive = better in kimma
+write_csv(ss_compare, "results/TableS.AUC.csv")
