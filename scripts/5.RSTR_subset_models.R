@@ -47,7 +47,7 @@ datV.tb.unrelated$weights <- as.data.frame(datV.tb.unrelated$weights) %>%
 kin.unrelated <- kin[unrelated,unrelated]
 
 #Subset related
-#Subset to TB vs TB in LTBI samples
+#Subset to RSTR vs LTBI in TB samples
 datV.tb.related <- datV
 datV.tb.related$targets <- datV.tb.related$targets %>% 
   filter(ptID %in% related & condition == "TB")
