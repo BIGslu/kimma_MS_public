@@ -7,7 +7,7 @@ library(limma)
 library(variancePartition)
 
 #### Load data ####
-attach("data/RSTR_RNAseq_data_combined_clean.RData")
+attach("data/RSTR_RNAseq_data_combined_uniqueFULLID_weights.RData")
 dat.raw <- dat.combined
 datV.raw <- dat.combined.voom
 datV.raw$design <- NULL
@@ -137,6 +137,9 @@ ID <- data.frame(FULLIDNO = all.ID,
                  ptID = paste0("pt",
                                str_pad(sample.int(length(all.ID), 
                                                   length(all.ID)),2, pad="0")))
+## Save ID key
+write_csv(file = "data/RSTR_ID_key.csv", ID)
+
 ## edgeR
 dat.dedup.kin.rename <- dat.dedup.kin
 
