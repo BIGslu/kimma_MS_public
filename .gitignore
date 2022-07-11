@@ -40,9 +40,13 @@ vignettes/*.pdf
 
 # MAC
 *.DS_Store
+
+# Raw data
 data/RSTR_RNAseq_data_combined_clean.RData
 notes/kimma_MS_outline.docx
 data/merged_Omni_MegaEx_randomFounder_Hawn_filter_LD.gds
 data/kinship_Hawn_all.csv
 data/RSTR_ID_key.csv
 data/RSTR_RNAseq_data_combined_uniqueFULLID_weights.RData
+data/RSTR_RNAseq_data_combined_clean.RData
+
