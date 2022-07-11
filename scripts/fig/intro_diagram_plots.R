@@ -1,4 +1,5 @@
 library(tidyverse)
+library(limma)
 library(kimma)
 library(BIGpicture)
 library(SEARchways)
@@ -20,8 +21,9 @@ datV.ltbi$weights <- as.data.frame(datV.ltbi$weights) %>%
 #### Model ####
 result <- kmFit(dat = datV.ltbi, kin=kin,
                 model = "~ condition + (1|ptID)", 
-                run.lme = TRUE, run.lme = TRUE, run.lmerel = TRUE, 
+                run.lm = TRUE, run.lme = TRUE, run.lmerel = TRUE, 
                 use.weights = FALSE, metrics = TRUE)
+
 summarise_kmFit(result$lme)
 
 #### AIC ####
