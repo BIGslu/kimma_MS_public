@@ -36,14 +36,15 @@ pca <- plot_pca(datV.ltbi, vars = "condition")[[1]] +
   theme(axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
         axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
+        axis.ticks.y=element_blank(),
+        legend.position = "bottom",legend.direction = "vertical") 
 pca
-ggsave("figs/intro_diagram/PCA.pdf", pca, width=3, height=2)
+ggsave("figs/intro_diagram/PCA.pdf", pca, width=2.5, height=3)
 
 #### Venn ####
-vd <- plot_venn_genes(result,"lme", fdr.cutoff = 0.05)
+vd <- plot_venn_genes(result, "lme", random=TRUE,fdr.cutoff = 0.05)
 vd
-ggsave("figs/intro_diagram/venn.pdf", vd, width=3, height=3.5)
+ggsave("figs/intro_diagram/venn.pdf", vd$venn[[1]], width=3, height=3.5)
 
 #### STRING ####
 genes.OI <- result$lme %>% 

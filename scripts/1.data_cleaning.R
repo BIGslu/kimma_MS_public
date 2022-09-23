@@ -7,7 +7,7 @@ library(limma)
 library(variancePartition)
 
 #### Load data ####
-attach("data/RSTR_RNAseq_data_combined_uniqueFULLID_weights.RData")
+attach("data/RSTR_RNAseq_data_combined_clean.RData")
 dat.raw <- dat.combined
 datV.raw <- dat.combined.voom
 datV.raw$design <- NULL

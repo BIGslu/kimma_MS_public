@@ -13,27 +13,30 @@ geno.df[1:3,1:3]
 snpgdsClose(gds)
 
 #### Filter genes of interest ####
-#Get genes significant for RSTR in TB samples
-load("results/rstr_subset_fit.RData")
+#Get genes significant for Mtb in LTBI samples
+load("results/condition_subset_fit.RData")
 
-genes.OI <- rstr_subset_result %>% 
-  filter(kinship == "kinship" & paired == "unpaired" &
+deg1 <- condition_subset_result %>% 
+  filter(kinship == "kinship" & paired == "paired" &
            software == "kimma" & 
-           weights == "weights" & subset == "related") %>%
+           weights == "voom weights" & subset == "related") %>%
   filter(FDR < 0.05) %>% 
   pull(gene)
 
-# Get Ensembl ID for genes of interest
+
+#### ENSEMBL ####
+#Get Ensembl ID for genes of interest
 grch38 <- useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
 
 gene.anno <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
                    filters = "hgnc_symbol", 
-                   values = genes.OI, 
+                   values = deg1, 
                    mart = grch38)
 
 #Annotate SNPs to Ensembl gene ID
 grch38.snp <- useMart(biomart="ENSEMBL_MART_SNP", dataset="hsapiens_snp")
 
+#### SNP anno ####
 ## Note getting all SNP at once times out from ENSEMBL server
 ## Instead get 1000 SNP chunks at a time
 
@@ -48,14 +51,17 @@ for(i in seq(1, ncol(geno.df), by=1000)){
   snp.temp <- getBM(attributes = c("refsnp_id", "ensembl_gene_stable_id"),
                     filters = "snp_filter",
                     values = colnames(geno.df)[i:i2],
-                    mart = grch38.snp) %>%
-    filter(ensembl_gene_stable_id %in% gene.anno$ensembl_gene_id)
+                    mart = grch38.snp) 
   
   if(nrow(snp.temp) > 0){ snp.anno <- bind_rows(snp.temp, snp.anno)}
 }
 
+save(snp.anno, file="data/snp.anno.RData")
+
+#### Data cleaning ####
 # Combine gene HGNC and SNP anno
-snp.anno.all <- snp.anno %>% 
+snp.anno.all <- snp.anno %>%
+  filter(ensembl_gene_stable_id %in% gene.anno$ensembl_gene_id) %>% 
   distinct() %>% 
   inner_join(gene.anno, by=c("ensembl_gene_stable_id"="ensembl_gene_id")) %>% 
   rename(ensembl=ensembl_gene_stable_id, gene=hgnc_symbol) %>% 
@@ -79,6 +85,7 @@ geno.df.filter.rename <- geno.df.filter %>%
   dplyr::select(refsnp_id, gene, all_of(key$ID_sort))
 colnames(geno.df.filter.rename) <- c("refsnp_id","gene",key$ptID)
 
-#Save
+#### Save ####
 geno.final <- geno.df.filter.rename
-save(geno.final, file="data/RSTR_snp.RData")
+
+save(geno.final, deg1, file="data/RSTR_snp.RData")
