@@ -68,7 +68,8 @@ kin.related <- kin[related,related]
 unrelated.lmerel <- kmFit(dat = datV.tb.unrelated, kin=kin.unrelated,
                           patientID = "FULLIDNO",
                           model = "~ condition*Sample_Group + KCHCA_AGE_YR_CURRENT + M0_KCVSEX + experiment + (1|FULLIDNO)", run.lmerel = TRUE, run.contrast = TRUE,
-                          use.weights = TRUE, metrics = TRUE)
+                          use.weights = TRUE, metrics = TRUE,
+                          contrast.var = "condition:Sample_Group")
 
 unrelated.lmerel$lmerel <- unrelated.lmerel$lmerel %>% 
   mutate(software = "kimma", paired = "paired",
@@ -83,9 +84,10 @@ save(unrelated.lmerel, file = "results/rstr_interaction_fit.RData")
 
 ###
 related.lmerel <- kmFit(dat = datV.tb.related, kin=kin.related,
-                          patientID = "FULLIDNO",
-                          model = "~ condition*Sample_Group + KCHCA_AGE_YR_CURRENT + M0_KCVSEX + experiment + (1|FULLIDNO)", run.lmerel = TRUE, run.contrast = TRUE,
-                          use.weights = TRUE, metrics = TRUE)
+                        patientID = "FULLIDNO",
+                        model = "~ condition*Sample_Group + KCHCA_AGE_YR_CURRENT + M0_KCVSEX + experiment + (1|FULLIDNO)", run.lmerel = TRUE, run.contrast = TRUE,
+                        use.weights = TRUE, metrics = TRUE,
+                        contrast.var = "condition:Sample_Group")
 
 related.lmerel$lmerel <- related.lmerel$lmerel %>% 
   mutate(software = "kimma", paired = "paired",
