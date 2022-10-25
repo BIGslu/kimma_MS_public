@@ -2,14 +2,13 @@ library(tidyverse)
 library(kimma)
 
 #### Data ####
-attach("data/RSTR_RNAseq_data_combined_uniqueFULLID_weights.RData")
+attach("data/RSTR_RNAseq_data_combined_clean.RData")
 dat.combined.voom <- dat.combined.voom
 dat.combined.voom$weights <- as.data.frame(dat.combined.voom$weights)
 rownames(dat.combined.voom$weights) <- rownames(dat.combined.voom$E)
 colnames(dat.combined.voom$weights) <- colnames(dat.combined.voom$E)
 
-kin <- read_csv("data/kinship_Hawn_all.csv") %>% 
-  column_to_rownames()
+kin <- load("data/RSTR_data_all.RData")
 
 #Subset related and unrelated individuals
 kin0 <- kin

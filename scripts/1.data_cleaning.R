@@ -12,6 +12,7 @@ dat.raw <- dat.combined
 datV.raw <- dat.combined.voom
 datV.raw$design <- NULL
 
+#original IDs
 load("data/RSTR_RNAseq_kinship.RData")
 
 #### Calculate dream weights ####
@@ -218,16 +219,9 @@ datD.dedup.kin.rename$weights <- as.matrix(datD.dedup.kin.rename$weights)
 
 #### Rename and save ####
 dat <- dat.dedup.kin.rename
-save(dat, file="data/RSTR_kimma_dat.RData")
-
 datV <- datV.dedup.kin.rename
-save(datV, file="data/RSTR_kimma_voom.RData")
-
 datD <- datD.dedup.kin.rename
-save(datD, file="data/RSTR_kimma_dream.RData")
-
 kin <- kin.matrix.rename
-save(kin, file="data/RSTR_kin.RData")
 
 save(dat, datV, datD, kin, file="data/RSTR_data_all.RData")
 

@@ -1,8 +1,5 @@
 library(tidyverse)
-attach("data/RSTR_kimma_dat.RData")
-attach("data/RSTR_kimma_voom.RData")
-attach("data/RSTR_kimma_dream.RData")
-attach("data/RSTR_RNAseq_kinship.RData")
+attach("data/RSTR_data_all.RData")
 
 #### Media only samples ####
 dat.m <- dat
@@ -57,7 +54,7 @@ colnames(datS$weights_dream) <- paste0("lib", 1:(N*2))
 meta.sub <- datV$targets %>% 
   filter(condition=="MEDIA") %>% 
   distinct(ptID, libID)
-kin.sim <- as.data.frame(kin.matrix) %>% 
+kin.sim <- as.data.frame(kin) %>% 
   rownames_to_column("ptID") %>% 
   left_join(meta.sub) %>% 
   arrange(libID) %>% 
