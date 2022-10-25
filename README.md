@@ -13,4 +13,3 @@ Results: In simulated datasets, kimma detects DEGs with similar specificity, sen
 Availability and implementation: Kimma is freely available on GitHub https://github.com/BIGslu/kimma with an instructional vignette at https://bigslu.github.io/kimma_vignette/kimma_vignette.html 
 
 Supplemental information: Scripts related to this manuscript can be found at https://github.com/BIGslu/kimma_MS_public 
-![image](https://user-images.githubusercontent.com/21342185/197858718-21ad644e-ed45-4bda-b729-4b891201368f.png)
