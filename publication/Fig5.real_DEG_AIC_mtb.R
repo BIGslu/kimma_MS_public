@@ -12,69 +12,27 @@ load("results/condition_subset_fit.RData")
 #### AIC ####
 aic <- condition_subset_metric %>%
   select(subset, weights, kinship, gene, AIC) %>% 
-  pivot_wider(names_from = kinship, values_from = AIC) 
+  pivot_wider(names_from = kinship, values_from = AIC) %>% 
+  mutate(subset = str_to_title(subset),
+         subset = factor(subset, levels=c("Unrelated","Related"))) %>% 
+  #final models
+  filter(weights == "voom weights")  %>% 
+  #Change in AIC
+  mutate(aic.delta = `no kinship`-kinship) 
+  
 
-#### Unrelated, voom weights ####
+#### AIC ####
 p1 <- aic %>% 
-  filter(subset == "unrelated" & weights == "voom weights") %>% 
-  mutate(best = ifelse(kinship<`no kinship`, "kinship",
-                       ifelse(`no kinship`<kinship, "no kinship", "none")),
-         best = factor(best, c("no kinship","none","kinship"))) %>% 
-  arrange(best) %>% 
   
-  ggplot(aes(x=`no kinship`, y=kinship, color=best)) +
-  geom_point(alpha=0.3) +
-  geom_abline(intercept = 0, slope = 1) +
+  ggplot(aes(x=subset, y=aic.delta)) +
+  geom_violin(fill="grey90") +
+  geom_hline(yintercept = c(-2,2), lty="dashed", color="grey60") + 
+  stat_summary(fun.y=mean, geom="point", size=2, color="black", shape="square") +
   theme_classic() +
-  coord_fixed() +
-  theme(legend.position = "none") +
-  scale_color_manual(values = clr_vec) +
-  labs(y = "Unrelated\n\nAIC kinship", x="AIC no kinship")
+  labs(y = "Per gene change in AIC\nBetter fit without kinship <--   --> Better fit with kinship       ", 
+       x="") 
 
-p1_inset <- p1 +
-  theme(legend.position = "none",
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank()) +
-  geom_abline(intercept = 2, slope = 1, lty="dashed") +
-  geom_abline(intercept = -2, slope = 1, lty="dashed") +
-  scale_x_continuous(breaks=c(0,2,4), limits = c(0,4)) +
-  scale_y_continuous(breaks=c(0,2,4), limits = c(0,4))
-
-p1_all <- p1 + 
-  inset_element(p1_inset, 0.5,0.01,1,0.49) #lbrt
-# p1_all
-
-#### Related, voom weights ####
-
-p2 <- aic %>% 
-  filter(subset == "related" & weights == "voom weights") %>% 
-  mutate(best = ifelse(kinship<`no kinship`, "kinship",
-                       ifelse(`no kinship`<kinship, "no kinship", "none")),
-         best = factor(best, c("no kinship","none","kinship"))) %>% 
-  arrange(best) %>% 
-  
-  ggplot(aes(x=`no kinship`, y=kinship, color=best)) +
-  geom_point(alpha=0.3) +
-  geom_abline(intercept = 0, slope = 1) +
-  theme_classic() +
-  coord_fixed() +
-  labs(color="Best fit", y="Related\n\nAIC kinship",
-       x="AIC no kinship") +
-  scale_color_manual(values = clr_vec) +
-  theme(legend.position = "bottom")
-
-p2_inset <- p2 +
-  theme(legend.position = "none",
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank()) +
-  geom_abline(intercept = 2, slope = 1, lty="dashed") +
-  geom_abline(intercept = -2, slope = 1, lty="dashed") +
-  scale_x_continuous(breaks=c(0,2,4), limits = c(0,4)) +
-  scale_y_continuous(breaks=c(0,2,4), limits = c(0,4))
-
-p2_all <- p2 + 
-  inset_element(p2_inset, 0.5,0.01,1,0.49) #lbrt
-# p2_all
+# p1
 
 #### Venn ####
 
@@ -94,10 +52,11 @@ signif.ls1[["kinship"]] <- condition_subset_result %>%
   filter(FDR < 0.05) %>% 
   pull(gene)
 
-p3 <- ggvenn(signif.ls1, show_percentage = FALSE,
+p2 <- ggvenn(signif.ls1, show_percentage = FALSE,
              fill_color = c("#FFB000","#648FFF"),
-             text_size = 2.5, set_name_size = 3, stroke_size = 0.5)
-# p3
+             text_size = 2.5, set_name_size = 3, stroke_size = 0.5)+
+  annotate(geom = "text", label = "Unrelated", x = 0, y = -1.3, size=3)
+# p2
 
 signif.ls2 <- list()
 
@@ -115,20 +74,88 @@ signif.ls2[["kinship"]] <- condition_subset_result %>%
   filter(FDR < 0.05) %>% 
   pull(gene)
 
-p4 <- ggvenn(signif.ls2, show_percentage = FALSE,
+p3 <- ggvenn(signif.ls2, show_percentage = FALSE,
              fill_color = c("#FFB000","#648FFF"),
-             text_size = 2.5, set_name_size = 3, stroke_size = 0.5) 
-# p4
+             text_size = 2.5, set_name_size = 3, stroke_size = 0.5) +
+  annotate(geom = "text", label = "Related", x = 0, y = -1.3, size=3)
+# p3
+
+#### eQTL ####
+attach("data/RSTR_data_all.RData")
+load("data/RSTR_snp.RData")
+load("data/related.unrelated.RData")
+load("results/rstr_subset_eqtl.RData")
+
+dat.eqtl <- eqtl$lmerel %>% 
+  filter(grepl(":", variable))
+
+gene.OI <- dat.eqtl %>% 
+  slice_min(FDR)
+
+#Get allele info
+library(SNPRelate)
+gds <- snpgdsOpen("data/merged_Omni_MegaEx_randomFounder_Hawn_filter_LD.gds")
+alleles <- data.frame(
+  snpID = read.gdsn(index.gdsn(gds, "snp.id")),
+  allele = read.gdsn(index.gdsn(gds, "snp.allele")),
+  chr = read.gdsn(index.gdsn(gds, "snp.chromosome")),
+  pos = read.gdsn(index.gdsn(gds, "snp.position"))
+) %>% 
+  filter(snpID == gene.OI$genotype) %>% 
+  separate(allele, into=c("A","B"))
+#0 is two B allele 
+# https://www.bioconductor.org/packages/devel/bioc/vignettes/SNPRelate/inst/doc/SNPRelate.html
+
+#Expression data
+temp <- datV$E %>% 
+  rownames_to_column("gene") %>% 
+  filter(gene %in% gene.OI$gene) %>% 
+  pivot_longer(-gene, names_to = "libID", values_to = "E") %>% 
+  left_join(datV$targets) %>% 
+  filter(Sample_Group == "LTBI" & ptID %in% related)
+
+temp2 <- geno.final %>% 
+  filter(refsnp_id %in% gene.OI$genotype) %>% 
+  pivot_longer(-c(refsnp_id:gene), names_to = "ptID", values_to = "genotype") %>% 
+  inner_join(temp)
+
+p4 <- temp2 %>% 
+  mutate(group = ifelse(ptID %in% related,"Related","Unrelated"),
+         facet = paste("P =", formatC(gene.OI$pval,digits=2,format="E")),
+         condition = recode(condition, "MEDIA"="Media", "TB"="Mtb"),
+         allele = case_when(genotype == 0 ~ paste0(alleles$B, alleles$B),
+                            genotype == 1 ~ paste0(alleles$B, alleles$A),
+                            genotype == 2 ~ paste0(alleles$A, alleles$A))) %>% 
+  
+  ggplot(aes(x=reorder(allele, genotype), y=E))+
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width=0.2, height=0) +
+  theme_classic() +
+  labs(x=gene.OI$genotype, 
+       y=paste("Normalized log2 expression", gene.OI$gene, sep="\n")) +
+  geom_smooth(method = "lm", se=FALSE, aes(group=condition),
+              color="grey60") +
+  
+  theme(text = element_text(size=8)) +
+  facet_wrap(~condition, ncol=2, scales="free_x")
+
 
 #### Combine ####
-p_final <- p1_all + p3 + p2_all + p4 +
+design <- "
+AB
+AC
+DD
+"
+p_final <- p1+p2+p3+p4 +
   plot_annotation(tag_levels = "A",
-                  title = "Mtb vs media in LTBI")
-p_final
+                  title = "Paired\nMtb vs media in LTBI") +
+  plot_layout(design = design) &
+  theme(plot.tag = element_text(size=13))
+# p_final
 
 #### Save ####
-ggsave("figs/Fig5.real_DEG_AIC_mtb.png", p_final, height=6, width = 6)
-ggsave("figs/Fig5.real_DEG_AIC_mtb.pdf", p_final, height=6, width = 6)
+ggsave("figs/Fig5.real_DEG_AIC_mtb.png", p_final, height=7, width = 4.5)
+ggsave("figs/Fig5.real_DEG_AIC_mtb.pdf", p_final, height=7, width = 4.5)
 
 
 #### Check fit new DEG with kinship ####

@@ -3,6 +3,7 @@ library(limma)
 library(kimma)
 library(variancePartition)
 library(DESeq2)
+library(edgeR)
 library(foreach)
 library(parallel)
 library(doParallel)
@@ -24,6 +25,13 @@ ss_calc <- function(i, dat, fdr, fdr.name){
     deg_test2 <- fdr %>% 
       filter(grepl("condition",variable) & adj.P.Val < p.cutoff) %>% 
       select(geneName) %>% unlist(use.names = FALSE)
+    } else if("PValue" %in% colnames(fdr)){
+      deg_test <- fdr %>% 
+        filter(PValue < p.cutoff) %>% 
+        select(symbol) %>% unlist(use.names = FALSE)
+      deg_test2 <- fdr %>% 
+        filter(FDR < p.cutoff) %>% 
+        select(symbol) %>% unlist(use.names = FALSE)
     } else{
       deg_test <- fdr %>% 
         filter(grepl("condition",variable) & pval < p.cutoff) %>% 
@@ -243,7 +251,7 @@ result <- foreach(i=1:100, .combine='comb', .multicombine=TRUE,
                   }
 
 stopCluster(cl)
-save(result, file="results/model_fit/simulated_limma_kimma.RData")
+save(result, file="results/model_fit/simulated/simulated_limma_kimma.RData")
 
 #### Multi-processor kimma ####
 time_resultKM <- data.frame()
@@ -381,7 +389,7 @@ for(i in 1:100){
 }
 
 save(time_resultKM, #ss_resultKM, 
-     file="results/model_fit/simulated_kimma_multi.RData")
+     file="results/model_fit/simulated/simulated_kimma_multi.RData")
 
 #### dream ####
 # Cannot be run in foreach loop as dream parallel processing conflicts with dopar parallel
@@ -479,7 +487,7 @@ for(i in 1:100) {
 }
 
 save(time_resultD, ss_resultD, 
-     file="results/model_fit/simulated_dream.RData")
+     file="results/model_fit/simulated/simulated_dream.RData")
 
 #### DESeq2 ####
 p = 6
@@ -563,7 +571,56 @@ for(i in 1:100){
 }
 
 save(time_resultS, ss_resultS, 
-     file="results/model_fit/simulated_deseq.RData")
+     file="results/model_fit/simulated/simulated_deseq.RData")
+
+#### edgeR ####
+
+ss_resultE <- data.frame()
+time_resultE <- data.frame()
+
+for(i in 1:100){
+  print(i)
+  #### Data ####
+  load(paste0("data_sim/simulated",i,".RData"))
+  dat.sim.format <- DGEList(counts = round(dat.sim$counts, digits=0),
+                            samples = dat.sim$targets, 
+                            genes = dat.sim$genes)
+  
+  # Set to NULL to capture errors
+  fdrEnnn <- fdrEynn <- NULL
+  
+  #### Paired = N, kinship = N, weights = N ####
+  start <- Sys.time()
+  mm <- model.matrix(~condition, data = dat.sim.format$samples)
+  dat.sim.disp <- estimateDisp(dat.sim.format, design = mm)
+  fit <- glmQLFit(dat.sim.disp, mm) %>% glmQLFTest(coef = "conditionsimulated") %>% topTags(n=Inf)
+  fdrEnnn <- fit$table
+  endEnnn <- Sys.time()
+  
+  #### Paired = Y, kinship = N, weights = N ####
+  mm <- model.matrix(~ptID+condition, data = dat.sim.format$samples)
+  dat.sim.disp <- estimateDisp(dat.sim.format, design = mm)
+  fit <- glmQLFit(dat.sim.disp, mm) %>% glmQLFTest(coef = "conditionsimulated") %>% topTags(n=Inf)
+  fdrEynn <- fit$table
+  endEynn <- Sys.time()
+  
+  #### sensitivity and specificity ####
+  for(m in ls(pattern = "^fdr")){
+    if(!is.null(get(m))){
+      ss_resultE <- ss_calc(i, dat.sim.format, get(m), m) %>% 
+        bind_rows(ss_resultE)
+    }
+  }
+  
+  #### time ####
+  time_resultE <- data.frame(model=c("Ennn", "Eynn"),
+                            simulation=i,
+                            time_s=c(endEnnn-start, endEynn-endEnnn))%>% 
+    bind_rows(time_resultE)
+}
+
+save(time_resultE, ss_resultE, 
+     file="results/model_fit/simulated/simulated_edger.RData")
 
 #### Combine and format results ####
 
@@ -571,18 +628,18 @@ load("results/model_fit/simulated/simulated_limma_kimma.RData")
 load("results/model_fit/simulated/simulated_kimma_multi.RData")
 load("results/model_fit/simulated/simulated_dream.RData")
 load("results/model_fit/simulated/simulated_deseq.RData")
+load("results/model_fit/simulated/simulated_edger.RData")
 
-time_result <- bind_rows(result[[2]]) %>% 
-  bind_rows(bind_rows(time_resultKM)) %>% 
-  bind_rows(bind_rows(time_resultD)) %>%
-  bind_rows(bind_rows(time_resultS)) %>%
+time_result <- bind_rows(result[[2]], time_resultKM, time_resultD,
+                         time_resultS, time_resultE) %>%
   #format labels
   separate(model, into=c("trash","software","paired",
                          "kinship","weights1","weights_proc"),
            sep="", remove = FALSE, extra = "merge") %>% 
   mutate(software = recode_factor(factor(software),
                                   "K"="kimma", "L"="limma",
-                                  "D"="dream", "S"="DESeq2"),
+                                  "D"="dream", "S"="DESeq2",
+                                  "E"="edgeR"),
          paired = recode_factor(factor(paired),
                                 "n"="unpaired","y"="paired"),
          kinship = recode_factor(factor(kinship),
@@ -606,9 +663,7 @@ time_result <- bind_rows(result[[2]]) %>%
   select(model, kinship, paired, weights, weights_type, software,
          processors, simulation, time_s)
 
-ss_result <- bind_rows(result[[1]]) %>% 
-  bind_rows(bind_rows(ss_resultD)) %>%
-  bind_rows(bind_rows(ss_resultS)) %>%
+ss_result <- bind_rows(result[[1]], ss_resultD, ss_resultS, ss_resultE) %>%
   #format labels
   mutate(model = gsub("fdr","", model)) %>% 
   separate(model, into=c("trash","software","paired",
@@ -616,7 +671,8 @@ ss_result <- bind_rows(result[[1]]) %>%
            sep="", remove = FALSE) %>% 
   mutate(software = recode_factor(factor(software),
                                   "K"="kimma", "L"="limma",
-                                  "D"="dream", "S"="DESeq2"),
+                                  "D"="dream", "S"="DESeq2",
+                                  "E"="edgeR"),
          paired = recode_factor(factor(paired),
                                 "n"="unpaired","y"="paired"),
          kinship = recode_factor(factor(kinship),

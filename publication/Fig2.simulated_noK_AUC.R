@@ -6,7 +6,7 @@ library(multcompView)
 
 #colors
 clr_vec <- c("kimma"="#AA4499","limma"="#117733",
-             "dream"="#88CCEE","DESeq2"="#DDCC77")
+             "dream"="#88CCEE","DESeq2"="#DDCC77", "edgeR"="#332288")
 
 #### Data ####
 load("results/simulated_fit.RData")
@@ -50,27 +50,33 @@ p3 <- auc %>%
 p3
 
 #### Stats AUC ####
+auc_summ <- auc %>% 
+  group_by(model, software, paired, kinship, weights, weights_type) %>% 
+  summarise(meanAUC=mean(auc), .groups="drop")
+
 aov.result <- aov(auc ~ model, data = filter(auc, kinship=="no kinship"))
-tukey.result <- TukeyHSD(aov.result)
 group.letter <- data.frame(multcompLetters(tukey.result$model[,4])$Letters) %>% 
   rownames_to_column("model") %>%
-  rename(let=2) %>% 
-  mutate(auc = 1.01) %>% 
-  #Switch c and b
-  mutate(let = recode(let, "b"="z", "c"="b"),
-         let = recode(let, "z"="c")) %>% 
-  left_join(distinct(auc, model, software, paired, kinship, weights, weights_type))
-
+  dplyr::rename(let=2)  %>% 
+  left_join(auc_summ) %>% 
+  mutate(auc = 1.01) %>%
+  #set letters from shortest to longest time
+  mutate(let_fct = fct_reorder(factor(let), -meanAUC),
+         let_num = as.numeric(let_fct)) %>% 
+  arrange(let_fct) %>% 
+  mutate(let_new = recode(let_num,
+                          "1"="a","2"="b","3"="c","4"="d","5"="e",
+                          "6"="f","7"="g"))
 
 p3Pb <- p3 +
-  geom_text(data = group.letter, mapping = aes(label = let),
+  geom_text(data = group.letter, mapping = aes(label = let_new),
             vjust=0, size=3) +
   lims(y=c(0.4,1.03))+
   theme(legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = 1)) 
 p3Pb
 
-ggsave("figs/Fig2.simulated_noK_AUC.png", p3Pb, width=6, height=4)
-ggsave("figs/Fig2.simulated_noK_AUC.pdf", p3Pb, width=6, height=4)
+ggsave("figs/Fig2.simulated_noK_AUC.png", p3Pb, width=6.5, height=4)
+ggsave("figs/Fig2.simulated_noK_AUC.pdf", p3Pb, width=6.5, height=4)
 
 
