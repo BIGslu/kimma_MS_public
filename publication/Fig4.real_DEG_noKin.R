@@ -45,8 +45,11 @@ p1 <- ggvenn(signif.ls1, show_percentage = FALSE,
        text_size = 3, set_name_size = 3, stroke_size = 0.5) +
   labs(title="Paired\nMtb vs media in LTBI") +
   lims(x=c(-2.8,2.9)) +
-  theme(plot.title = element_text(hjust = 0.5))
-# p1
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = "white",
+                                        colour = "white",
+                                        size = 0.5, linetype = "solid"))
+p1
 
 #### RSTR data ####
 # load("results/rstr_tb_fit.RData")
@@ -93,4 +96,5 @@ p1 <- ggvenn(signif.ls1, show_percentage = FALSE,
 
 ggsave("figs/Fig4.real_DEG_noKin.png", p1, height=3, width = 4)
 ggsave("figs/Fig4.real_DEG_noKin.pdf", p1, height=3, width = 4)
+ggsave("figs/Fig4.real_DEG_noKin.tiff", p1, height=3, width = 4)
 

@@ -55,6 +55,7 @@ auc_summ <- auc %>%
   summarise(meanAUC=mean(auc), .groups="drop")
 
 aov.result <- aov(auc ~ model, data = filter(auc, kinship=="no kinship"))
+tukey.result <- TukeyHSD(aov.result)
 group.letter <- data.frame(multcompLetters(tukey.result$model[,4])$Letters) %>% 
   rownames_to_column("model") %>%
   dplyr::rename(let=2)  %>% 
@@ -78,5 +79,5 @@ p3Pb
 
 ggsave("figs/Fig2.simulated_noK_AUC.png", p3Pb, width=6.5, height=4)
 ggsave("figs/Fig2.simulated_noK_AUC.pdf", p3Pb, width=6.5, height=4)
-
+ggsave("figs/Fig2.simulated_noK_AUC.tiff", p3Pb, width=6.5, height=4)
 

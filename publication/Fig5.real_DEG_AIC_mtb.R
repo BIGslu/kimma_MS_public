@@ -156,7 +156,7 @@ p_final <- p1+p2+p3+p4 +
 #### Save ####
 ggsave("figs/Fig5.real_DEG_AIC_mtb.png", p_final, height=7, width = 4.5)
 ggsave("figs/Fig5.real_DEG_AIC_mtb.pdf", p_final, height=7, width = 4.5)
-
+ggsave("figs/Fig5.real_DEG_AIC_mtb.tiff", p_final, height=7, width = 4.5)
 
 #### Check fit new DEG with kinship ####
 outersect <- function(x, y) {

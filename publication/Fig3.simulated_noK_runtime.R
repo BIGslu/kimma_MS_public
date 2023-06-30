@@ -123,4 +123,5 @@ ggsave(filename="figs/Fig3.simulated_noK_runtime.pdf",
        p_all, width=7.5, height=4.5)
 ggsave(filename="figs/Fig3.simulated_noK_runtime.png", 
        p_all, width=7.5, height=4.5)
-
+ggsave(filename="figs/Fig3.simulated_noK_runtime.tiff", 
+       p_all, width=7.5, height=4.5)
